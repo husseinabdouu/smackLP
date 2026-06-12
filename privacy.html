@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Privacy Policy for Smack — what we collect, why, and how to delete your data." />
+<title>Privacy Policy — Smack</title>
+<link rel="icon" type="image/png" href="icon.png" />
+<link rel="apple-touch-icon" href="icon.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#0A0A0B;
+  --ink:#F5F5F4;
+  --muted:rgba(245,245,244,.62);
+  --dim:rgba(245,245,244,.3);
+  --volt:#B6FF2E;
+  --volt-glow:rgba(182,255,46,.45);
+  --line:rgba(255,255,255,.08);
+  --line-2:rgba(255,255,255,.16);
+  --glass:rgba(255,255,255,.035);
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+
+html{scroll-behavior:smooth}
+body{
+  font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,sans-serif;
+  background:var(--bg);color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+}
+a{color:var(--volt);text-decoration:none}
+a:hover{text-decoration:underline}
+::selection{background:var(--volt);color:#0A0A0B}
+
+.mesh{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(60vw 60vw at 85% -10%,rgba(182,255,46,.06),transparent 60%);
+}
+
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px clamp(20px,5vw,56px);
+  background:rgba(10,10,11,.65);
+  -webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);
+  border-bottom:1px solid var(--line);
+}
+.wordmark{
+  font-weight:700;font-size:22px;letter-spacing:-.04em;color:var(--ink);
+  display:flex;align-items:center;gap:8px;
+}
+.wordmark:hover{text-decoration:none}
+.wordmark .tick{
+  width:10px;height:10px;background:var(--volt);border-radius:2px;
+  box-shadow:0 0 14px var(--volt-glow);display:inline-block;
+}
+.btn{
+  display:inline-flex;align-items:center;font-weight:600;font-size:15px;letter-spacing:-.01em;
+  border:1px solid var(--volt);border-radius:999px;
+  background:var(--volt);color:#0A0A0B;padding:10px 20px;
+  transition:transform .25s,box-shadow .25s;
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 32px rgba(182,255,46,.35);text-decoration:none}
+
+main{
+  position:relative;z-index:2;
+  max-width:720px;margin:0 auto;
+  padding:140px clamp(20px,5vw,32px) 80px;
+}
+.kicker{
+  font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--volt);margin-bottom:16px;
+}
+h1{font-size:clamp(36px,7vw,56px);letter-spacing:-.04em;line-height:1.02;margin-bottom:14px}
+.meta{font-family:var(--mono);font-size:13px;color:var(--dim);margin-bottom:48px}
+
+h2{
+  font-size:22px;letter-spacing:-.02em;font-weight:700;
+  margin:44px 0 14px;padding-top:28px;border-top:1px solid var(--line);
+}
+p,li{color:var(--muted);font-size:16px;line-height:1.7}
+p{margin-bottom:14px}
+ul{margin:0 0 14px 20px}
+li{margin-bottom:8px}
+strong{color:var(--ink);font-weight:600}
+.note{
+  border:1px solid var(--line-2);border-left:3px solid var(--volt);
+  background:var(--glass);border-radius:12px;padding:16px 18px;margin:18px 0;
+}
+.note p{margin:0}
+
+footer{
+  position:relative;z-index:2;
+  border-top:1px solid var(--line);
+  padding:36px clamp(20px,5vw,56px);
+  display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between;
+  color:var(--dim);font-size:14px;
+}
+footer .links{display:flex;gap:26px;flex-wrap:wrap}
+footer a{color:var(--dim);transition:color .25s}
+footer a:hover{color:var(--volt);text-decoration:none}
+
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<div class="mesh"></div>
+
+<nav>
+  <a class="wordmark" href="index.html"><span class="tick"></span>Smack</a>
+  <a class="btn" href="index.html#get">Get the App</a>
+</nav>
+
+<main>
+  <p class="kicker">Legal</p>
+  <h1>Privacy Policy</h1>
+  <p class="meta">Effective date: June 12, 2026</p>
+
+  <p>Smack is an iOS app that lets friend groups track their competitive games — leaderboards, head-to-head records, streaks, and settling bets between friends. It is operated by an individual developer. This policy explains, in plain language, what data Smack collects, why, and what your choices are.</p>
+
+  <div class="note">
+    <p><strong>The short version:</strong> we collect the minimum needed to run the app — your name, email, and the game results you log. No ads, no analytics, no tracking, no selling your data. Ever.</p>
+  </div>
+
+  <h2>Who we are</h2>
+  <p>Smack is operated by an individual developer. For anything privacy-related, contact:</p>
+  <p><a href="mailto:husseinabdou06@gmail.com">husseinabdou06@gmail.com</a></p>
+
+  <h2>What we collect</h2>
+  <ul>
+    <li><strong>Name</strong> — your display name, shown to members of your groups.</li>
+    <li><strong>Email address</strong> — used to create and identify your account.</li>
+    <li><strong>User ID</strong> — an identifier generated when you sign up, used internally to link your account to your data.</li>
+    <li><strong>Game data</strong> — the groups you join and the results, scores, and bets you and your group log.</li>
+    <li><strong>Payment handles (optional)</strong> — usernames for Venmo, Cash App, Zelle, or InstaPay that <em>you</em> choose to enter so friends can pay you. These are <strong>usernames only</strong>. Smack never collects, sees, or stores card numbers, bank details, or any payment credentials, and no money moves through Smack itself.</li>
+    <li><strong>Push notification token (optional)</strong> — if you enable notifications, a device token is stored so we can deliver them. You can turn notifications off at any time in iOS Settings.</li>
+  </ul>
+  <p>Account data is stored using <strong>Firebase Authentication</strong> and <strong>Cloud Firestore</strong> (services provided by Google).</p>
+
+  <h2>How you sign in</h2>
+  <p>You can sign in with <strong>Apple</strong>, <strong>Google</strong>, or an <strong>email and password</strong>. When you use Apple or Google sign-in, we receive only the basic profile information (name, email) needed to create your account.</p>
+
+  <h2>How we use your data</h2>
+  <p>For app functionality. That's it:</p>
+  <ul>
+    <li>Creating and maintaining your account.</li>
+    <li>Showing your name and game results to the members of your groups.</li>
+    <li>Letting friends in your group see the payment handles you've added, so they can pay you what they owe.</li>
+    <li>Sending push notifications you've opted into.</li>
+  </ul>
+  <p><strong>We do not</strong> show ads, run analytics or tracking, sell your data, or share it with data brokers. No advertising identifiers, no behavioral profiling.</p>
+
+  <h2>Subscriptions</h2>
+  <p>If Smack offers paid subscriptions, payment is processed entirely by <strong>Apple</strong> through your App Store account — we never see your payment details. Subscription status is managed through <strong>RevenueCat</strong>, a service provider that tells the app whether your subscription is active.</p>
+
+  <h2>Who we share data with</h2>
+  <p>Only the service providers needed to run the app:</p>
+  <ul>
+    <li><strong>Firebase / Google</strong> — authentication and database hosting.</li>
+    <li><strong>RevenueCat</strong> — subscription status.</li>
+    <li><strong>Apple</strong> — sign-in and subscription billing.</li>
+  </ul>
+  <p>Within the app, members of your groups can see your display name, the game results you log, and any payment handles you choose to add. That's the point of the app — but you control which groups you join and whether to add payment handles at all.</p>
+  <p>We do not share your data with anyone else, except if required by law.</p>
+
+  <h2>How long we keep it &amp; how to delete it</h2>
+  <p>Your data is kept for as long as your account exists. If you want your account and data deleted, email us at <a href="mailto:husseinabdou06@gmail.com">husseinabdou06@gmail.com</a> and we'll delete it.</p>
+
+  <h2>Children</h2>
+  <p>Smack is not directed at children under 13, and we do not knowingly collect personal information from children under 13. If you believe a child under 13 has created an account, contact us and we'll delete it.</p>
+
+  <h2>Changes to this policy</h2>
+  <p>If this policy changes, we'll update this page and revise the effective date at the top. Material changes will be communicated in the app where practical.</p>
+
+  <h2>Contact</h2>
+  <p>Questions about privacy? Email <a href="mailto:husseinabdou06@gmail.com">husseinabdou06@gmail.com</a>.</p>
+</main>
+
+<footer>
+  <span>© 2026 Smack</span>
+  <div class="links">
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="mailto:husseinabdou06@gmail.com">Contact</a>
+  </div>
+</footer>
+
+</body>
+</html>
