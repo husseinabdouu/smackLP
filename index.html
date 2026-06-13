@@ -876,12 +876,50 @@
     const FINAL_GLOW_OPACITY = 0.12;
     const FINAL_BLOOM = 0.52;
     const HERO_INTERACT_MAX = 0.025;
-    const DRAG_SENS = 0.0032;
-    const DRAG_Z_SENS = 0.0011;
-    const DRAG_SMOOTH = 0.09;
-    const SPIN_FRICTION = 0.985;
-    const SPIN_MIN = 0.00025;
+    const DRAG_SENS = 0.00175;
+    const DRAG_Z_SENS = 0.0006;
+    const DRAG_SMOOTH = 0.055;
+    const SPIN_FRICTION = 0.9935;
+    const SPIN_MIN = 0.0001;
+    const FLING_BOOST = 1.45;
+    const SETTLE_SPRING = 0.042;
+    const SETTLE_SNAP = 0.012;
     const SCROLL_ROT_BLEND = 0.12;
+    // userRot offsets — face-forward S poses only (no edge-on yaws)
+    const SETTLE_POSES = [
+      { x: 0, y: 0, z: 0 },
+      { x: 0.12, y: 0.42, z: 0.14 },
+      { x: -0.13, y: -0.4, z: -0.12 },
+      { x: 0.09, y: 0.82, z: 0.1 },
+      { x: -0.11, y: -0.76, z: 0.11 },
+      { x: 0.07, y: Math.PI, z: 0.05 },
+      { x: 0.18, y: Math.PI + 0.52, z: -0.09 },
+      { x: 0.26, y: 1.05, z: 0.15 },
+      { x: -0.24, y: -1.02, z: -0.13 },
+      { x: 0.21, y: -0.88, z: 0.16 },
+    ];
+
+    function angleDelta(from, to) {
+      return Math.atan2(Math.sin(to - from), Math.cos(to - from));
+    }
+
+    function poseDistance(a, b) {
+      const dy = angleDelta(a.y, b.y);
+      return Math.hypot(a.x - b.x, dy, a.z - b.z);
+    }
+
+    function findNearestSettlePose(rot) {
+      let best = SETTLE_POSES[0];
+      let bestDist = Infinity;
+      SETTLE_POSES.forEach((pose) => {
+        const d = poseDistance(rot, pose);
+        if (d < bestDist) {
+          bestDist = d;
+          best = pose;
+        }
+      });
+      return { x: best.x, y: best.y, z: best.z };
+    }
 
     const canvas = document.getElementById("bolt-canvas");
     const canvasWrap = document.getElementById("canvas-wrap");
@@ -1310,6 +1348,8 @@
         dragTarget: { x: 0, y: 0, z: 0 },
         userRot: { x: 0, y: 0, z: 0 },
         userVel: { x: 0, y: 0, z: 0 },
+        settling: false,
+        settleTarget: { x: 0, y: 0, z: 0 },
         lastPx: 0,
         lastPy: 0,
         lastT: 0,
@@ -1422,18 +1462,36 @@
         interact.userRot.x = interact.dragTarget.x;
         interact.userRot.y = interact.dragTarget.y;
         interact.userRot.z = interact.dragTarget.z;
+        interact.userVel.x *= FLING_BOOST;
+        interact.userVel.y *= FLING_BOOST;
+        interact.userVel.z *= FLING_BOOST;
         interact.dragging = false;
+        interact.settling = false;
         canvas.classList.remove("is-grabbing");
         document.body.classList.remove("bolt-dragging");
         const speed = Math.hypot(interact.userVel.x, interact.userVel.y, interact.userVel.z);
-        interact.spinning = speed > SPIN_MIN;
+        if (speed > SPIN_MIN) {
+          interact.spinning = true;
+        } else {
+          beginSettling();
+        }
         resumeLenisScroll();
+      }
+
+      function beginSettling() {
+        interact.spinning = false;
+        interact.userVel.x = 0;
+        interact.userVel.y = 0;
+        interact.userVel.z = 0;
+        interact.settleTarget = findNearestSettlePose(interact.userRot);
+        interact.settling = true;
       }
 
       function resetBoltInteraction() {
         detachBoltDragListeners();
         interact.dragging = false;
         interact.spinning = false;
+        interact.settling = false;
         interact.overBolt = false;
         interact.userVel.x = 0;
         interact.userVel.y = 0;
@@ -1628,9 +1686,9 @@
           const vx = (dy * DRAG_SENS) / dt;
           const vy = (dx * DRAG_SENS) / dt;
           const vz = (dx * DRAG_Z_SENS) / dt;
-          interact.userVel.x = interact.userVel.x * 0.35 + vx * 0.65;
-          interact.userVel.y = interact.userVel.y * 0.35 + vy * 0.65;
-          interact.userVel.z = interact.userVel.z * 0.35 + vz * 0.65;
+          interact.userVel.x = interact.userVel.x * 0.28 + vx * 0.72;
+          interact.userVel.y = interact.userVel.y * 0.28 + vy * 0.72;
+          interact.userVel.z = interact.userVel.z * 0.28 + vz * 0.72;
 
           interact.lastPx = event.clientX;
           interact.lastPy = event.clientY;
@@ -1663,6 +1721,7 @@
           event.preventDefault();
           interact.dragging = true;
           interact.spinning = false;
+          interact.settling = false;
           interact.userVel.x = 0;
           interact.userVel.y = 0;
           interact.userVel.z = 0;
@@ -1728,6 +1787,9 @@
             interact.userVel.y = 0;
             interact.userVel.z = 0;
           }
+          if (interact.settling) {
+            interact.settling = false;
+          }
         }
 
         if (canInteract && finePointer && pointerActive && !interact.dragging) {
@@ -1763,18 +1825,33 @@
 
             const speed = Math.hypot(interact.userVel.x, interact.userVel.y, interact.userVel.z);
             if (speed < SPIN_MIN) {
-              interact.spinning = false;
-              interact.userVel.x = 0;
-              interact.userVel.y = 0;
-              interact.userVel.z = 0;
+              beginSettling();
+            }
+          } else if (interact.settling && scrollTakeover <= 0.02) {
+            interact.userRot.x += (interact.settleTarget.x - interact.userRot.x) * SETTLE_SPRING;
+            interact.userRot.y += angleDelta(interact.userRot.y, interact.settleTarget.y) * SETTLE_SPRING;
+            interact.userRot.z += (interact.settleTarget.z - interact.userRot.z) * SETTLE_SPRING;
+            interact.dragTarget.x = interact.userRot.x;
+            interact.dragTarget.y = interact.userRot.y;
+            interact.dragTarget.z = interact.userRot.z;
+
+            if (poseDistance(interact.userRot, interact.settleTarget) < SETTLE_SNAP) {
+              interact.userRot.x = interact.settleTarget.x;
+              interact.userRot.y = interact.settleTarget.y;
+              interact.userRot.z = interact.settleTarget.z;
+              interact.dragTarget.x = interact.settleTarget.x;
+              interact.dragTarget.y = interact.settleTarget.y;
+              interact.dragTarget.z = interact.settleTarget.z;
+              interact.settling = false;
             }
           } else if (scrollTakeover > 0.02) {
+            interact.settling = false;
             const scrollEase = SCROLL_ROT_BLEND * scrollTakeover;
             interact.userRot.x += (0 - interact.userRot.x) * scrollEase;
-            interact.userRot.y += (0 - interact.userRot.y) * scrollEase;
+            interact.userRot.y += angleDelta(interact.userRot.y, 0) * scrollEase;
             interact.userRot.z += (0 - interact.userRot.z) * scrollEase;
             interact.dragTarget.x += (0 - interact.dragTarget.x) * scrollEase;
-            interact.dragTarget.y += (0 - interact.dragTarget.y) * scrollEase;
+            interact.dragTarget.y += angleDelta(interact.dragTarget.y, 0) * scrollEase;
             interact.dragTarget.z += (0 - interact.dragTarget.z) * scrollEase;
           }
         }
@@ -1790,6 +1867,7 @@
             && cursorBlend > 0.02
             && !interact.dragging
             && !interact.spinning
+            && !interact.settling
           ) {
             targetX += pointer.y * 0.085 * cursorBlend;
             targetY += pointer.x * 0.11 * cursorBlend;
@@ -1805,13 +1883,17 @@
           }
 
           if (interact.dragging) {
-            smoothRot.x += (targetX - smoothRot.x) * 0.12;
-            smoothRot.y += (targetY - smoothRot.y) * 0.12;
-            smoothRot.z += (targetZ - smoothRot.z) * 0.12;
+            smoothRot.x += (targetX - smoothRot.x) * 0.09;
+            smoothRot.y += (targetY - smoothRot.y) * 0.09;
+            smoothRot.z += (targetZ - smoothRot.z) * 0.09;
           } else if (interact.spinning) {
-            smoothRot.x += (targetX - smoothRot.x) * 0.08;
-            smoothRot.y += (targetY - smoothRot.y) * 0.08;
-            smoothRot.z += (targetZ - smoothRot.z) * 0.08;
+            smoothRot.x += (targetX - smoothRot.x) * 0.06;
+            smoothRot.y += (targetY - smoothRot.y) * 0.06;
+            smoothRot.z += (targetZ - smoothRot.z) * 0.06;
+          } else if (interact.settling) {
+            smoothRot.x += (targetX - smoothRot.x) * 0.07;
+            smoothRot.y += (targetY - smoothRot.y) * 0.07;
+            smoothRot.z += (targetZ - smoothRot.z) * 0.07;
           } else if (scrollTakeover > 0.02) {
             smoothRot.x += (targetX - smoothRot.x) * 0.08;
             smoothRot.y += (targetY - smoothRot.y) * 0.08;
