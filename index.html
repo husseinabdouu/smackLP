@@ -1,778 +1,1879 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="description" content="Smack — every game your group plays, tracked. Leaderboards, head-to-head records, streaks, and bets settled in one tap." />
-<meta property="og:title" content="Smack — Every game. Every score. Settled." />
-<meta property="og:description" content="Track poker nights, FIFA matches, ping pong wars and more with your friends. Leaderboards, head-to-head records, and bets settled in one tap." />
-<title>Smack — Every game. Every score. Settled.</title>
-<link rel="icon" type="image/png" href="icon.png" />
-<link rel="apple-touch-icon" href="icon.png" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Smack — the scoreboard for your crew. Every game. Every score. Settled." />
+  <meta property="og:title" content="Smack — Settle it." />
+  <meta property="og:description" content="Track poker nights, FIFA matches, ping pong wars and more with your friends." />
+  <title>Smack — Settle it.</title>
+  <link rel="icon" type="image/png" href="icon.png" />
+  <link rel="apple-touch-icon" href="icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet" />
+    :root {
+      --bg: #0A0B0D;
+      --bg-deep: #101113;
+      --volt: #B6FF2E;
+      --muted: #9A9AA0;
+      --line: rgba(255, 255, 255, 0.08);
+      --glass: rgba(255, 255, 255, 0.035);
+      --ios-bg: #F2F2F7;
+      --ios-card: #FFFFFF;
+      --ios-ink: #111114;
+      --ios-sub: #8E8E93;
+      --win: #22C55E;
+      --loss: #EF4444;
+      --gold: #F5B72E;
+      --silver: #A8B0BC;
+      --bronze: #C97B4A;
+    }
 
-<style>
-/* ============ RESET / TOKENS ============ */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    a { color: inherit; text-decoration: none; }
+    ::selection { background: var(--volt); color: var(--bg); }
 
-:root{
-  --bg:#0A0A0B;
-  --bg-2:#0E0E10;
-  --ink:#F5F5F4;
-  --muted:rgba(245,245,244,.55);
-  --dim:rgba(245,245,244,.28);
-  --volt:#B6FF2E;
-  --volt-dim:rgba(182,255,46,.14);
-  --volt-glow:rgba(182,255,46,.45);
-  --line:rgba(255,255,255,.08);
-  --line-2:rgba(255,255,255,.16);
-  --glass:rgba(255,255,255,.035);
-  --glass-2:rgba(255,255,255,.06);
-  /* app palette (inside phone mockups) */
-  --ios-bg:#F2F2F7;
-  --ios-card:#FFFFFF;
-  --ios-ink:#111114;
-  --ios-sub:#8E8E93;
-  --win:#22C55E;
-  --loss:#EF4444;
-  --gold:#F5B72E;
-  --silver:#A8B0BC;
-  --bronze:#C97B4A;
-  --mono:'JetBrains Mono',ui-monospace,monospace;
-}
+    html.lenis, html.lenis body { height: auto; }
+    .lenis.lenis-smooth { scroll-behavior: auto !important; }
 
-html{scroll-behavior:smooth}
-body{
-  font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,sans-serif;
-  background:var(--bg);
-  color:var(--ink);
-  overflow-x:hidden;
-  -webkit-font-smoothing:antialiased;
-  text-rendering:optimizeLegibility;
-}
-a{color:inherit;text-decoration:none}
-::selection{background:var(--volt);color:#0A0A0B}
+    html, body {
+      width: 100%;
+      background: var(--bg);
+      color: #fff;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
 
-/* ============ BACKDROP: mesh glows + grain ============ */
-.mesh{
-  position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:
-    radial-gradient(60vw 60vw at 85% -10%, rgba(182,255,46,.07), transparent 60%),
-    radial-gradient(50vw 50vw at -10% 35%, rgba(46,160,255,.05), transparent 60%),
-    radial-gradient(70vw 70vw at 50% 110%, rgba(182,255,46,.05), transparent 55%);
-}
-.grain{
-  position:fixed;inset:-50%;z-index:1;pointer-events:none;opacity:.5;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
-  animation:grain 9s steps(6) infinite;
-}
-@keyframes grain{
-  0%,100%{transform:translate(0,0)}16%{transform:translate(-3%,2%)}33%{transform:translate(2%,-3%)}
-  50%{transform:translate(-2%,-2%)}66%{transform:translate(3%,1%)}83%{transform:translate(-1%,3%)}
-}
+    body { overflow-x: hidden; }
 
-/* scroll progress */
-.progress{
-  position:fixed;top:0;left:0;height:2px;width:100%;z-index:120;
-  background:var(--volt);transform-origin:0 50%;transform:scaleX(0);
-  box-shadow:0 0 12px var(--volt-glow);
-}
+    .reduce-motion body { scroll-behavior: auto; }
 
-/* cursor glow (desktop pointers only) */
-.cursor-glow{
-  position:fixed;left:0;top:0;width:520px;height:520px;z-index:1;pointer-events:none;
-  margin:-260px 0 0 -260px;border-radius:50%;opacity:0;
-  background:radial-gradient(circle,rgba(182,255,46,.05) 0%,transparent 65%);
-}
-@media(pointer:fine){.cursor-glow{opacity:1}}
+    .canvas-wrap {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 90% 70% at 50% 48%, rgba(182, 255, 46, 0.055), transparent 68%),
+        radial-gradient(ellipse 120% 80% at 50% 100%, rgba(16, 17, 19, 0.9), transparent),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg-deep) 100%);
+    }
 
-main,nav,footer{position:relative;z-index:2}
+    .canvas-wrap::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.55) 100%);
+    }
 
-/* ============ NAV ============ */
-nav{
-  position:fixed;top:0;left:0;right:0;z-index:100;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:18px clamp(20px,5vw,56px);
-  transition:background .35s,border-color .35s,backdrop-filter .35s,padding .35s;
-  border-bottom:1px solid transparent;
-}
-nav.scrolled{
-  background:rgba(10,10,11,.65);
-  -webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);
-  border-bottom-color:var(--line);
-  padding-top:12px;padding-bottom:12px;
-}
-.wordmark{
-  font-weight:700;font-size:22px;letter-spacing:-.04em;display:flex;align-items:center;gap:8px;
-}
-.wordmark .tick{
-  width:10px;height:10px;background:var(--volt);border-radius:2px;
-  box-shadow:0 0 14px var(--volt-glow);display:inline-block;
-}
-.btn{
-  display:inline-flex;align-items:center;gap:10px;
-  font-family:inherit;font-weight:600;letter-spacing:-.01em;cursor:pointer;
-  border:1px solid var(--line-2);border-radius:999px;color:var(--ink);
-  background:var(--glass);padding:10px 20px;font-size:15px;
-  transition:transform .25s cubic-bezier(.2,.8,.2,1),background .25s,border-color .25s,box-shadow .25s,color .25s;
-}
-.btn:hover{transform:translateY(-2px);border-color:var(--volt);box-shadow:0 0 24px rgba(182,255,46,.18)}
-.btn.solid{background:var(--volt);color:#0A0A0B;border-color:var(--volt)}
-.btn.solid:hover{box-shadow:0 6px 32px rgba(182,255,46,.35)}
-.btn svg{flex:none}
+    #bolt-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      pointer-events: none;
+      touch-action: pan-y;
+    }
 
-/* ============ HERO ============ */
-.hero{
-  min-height:100svh;display:flex;flex-direction:column;justify-content:center;
-  padding:clamp(110px,16vh,160px) clamp(20px,5vw,56px) 40px;
-  position:relative;
-}
-.hero-grid{
-  display:grid;grid-template-columns:1fr;gap:48px;align-items:center;
-  max-width:1240px;margin:0 auto;width:100%;
-}
-.eyebrow{
-  display:inline-flex;align-items:center;gap:10px;
-  font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--muted);margin-bottom:26px;
-  border:1px solid var(--line);border-radius:999px;padding:8px 16px;background:var(--glass);
-}
-.eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--volt);box-shadow:0 0 10px var(--volt-glow);animation:pulse 2.2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+    #bolt-canvas.is-interactive {
+      pointer-events: auto;
+      touch-action: none;
+    }
 
-h1{
-  font-size:clamp(52px,11.5vw,118px);
-  line-height:.96;letter-spacing:-.045em;font-weight:700;margin-bottom:28px;
-}
-h1 .line{display:block;overflow:hidden;padding-bottom:.06em;margin-bottom:-.06em}
-h1 .w{display:inline-block;will-change:transform}
-h1 .volt{color:var(--volt);text-shadow:0 0 60px rgba(182,255,46,.35)}
+    #bolt-canvas.is-interactive.is-over-bolt:not(.is-grabbing) {
+      cursor: grab;
+    }
 
-.sub{
-  font-size:clamp(17px,2.2vw,20px);line-height:1.55;color:var(--muted);
-  max-width:520px;font-weight:400;margin-bottom:36px;
-}
-.hero-cta{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
-.btn.big{padding:16px 28px;font-size:16px}
-.hero-note{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:18px}
+    #bolt-canvas.is-interactive.is-grabbing {
+      cursor: grabbing;
+    }
 
-/* live stat chips floating near hero */
-.live-chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:34px}
-.chip{
-  font-family:var(--mono);font-size:13px;font-weight:600;
-  border:1px solid var(--line);background:var(--glass);border-radius:10px;
-  padding:9px 14px;color:var(--muted);display:inline-flex;gap:8px;align-items:center;
-}
-.chip b{color:var(--volt);font-weight:800}
+    body.bolt-dragging {
+      cursor: grabbing;
+    }
 
-/* ============ PHONE MOCKUPS ============ */
-.phone-wrap{position:relative;display:flex;justify-content:center;align-items:center;min-height:560px}
-.phone{
-  width:272px;border-radius:46px;position:relative;flex:none;
-  background:#16161A;
-  border:1px solid rgba(255,255,255,.14);
-  box-shadow:
-    inset 0 0 0 6px #000,
-    0 40px 90px rgba(0,0,0,.65),
-    0 0 70px rgba(182,255,46,.07);
-  padding:6px;
-}
-.phone::before{ /* dynamic island */
-  content:'';position:absolute;top:16px;left:50%;transform:translateX(-50%);
-  width:84px;height:24px;background:#000;border-radius:14px;z-index:5;
-}
-.screen{
-  background:var(--ios-bg);border-radius:40px;overflow:hidden;
-  height:556px;color:var(--ios-ink);
-  font-size:13px;letter-spacing:-.01em;position:relative;
-  display:flex;flex-direction:column;
-}
-.s-status{height:48px;flex:none}
-.s-head{padding:2px 16px 12px;display:flex;align-items:center;justify-content:space-between;flex:none}
-.s-title{font-size:21px;font-weight:700;letter-spacing:-.03em}
-.s-chip{
-  font-size:11px;font-weight:600;color:#3B82F6;background:rgba(59,130,246,.12);
-  padding:4px 10px;border-radius:999px;
-}
-.s-body{padding:0 12px 12px;display:flex;flex-direction:column;gap:8px;flex:1;overflow:hidden}
-.card{
-  background:var(--ios-card);border-radius:16px;padding:12px;
-  box-shadow:0 1px 3px rgba(0,0,0,.05);
-}
-/* leaderboard rows */
-.lb-row{display:flex;align-items:center;gap:10px}
-.rank-dot{width:9px;height:9px;border-radius:50%;flex:none}
-.rank-dot.g{background:var(--gold)}.rank-dot.s{background:var(--silver)}.rank-dot.b{background:var(--bronze)}
-.rank-dot.n{background:#D7D7DC}
-.avi{
-  width:32px;height:32px;border-radius:50%;flex:none;color:#fff;
-  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;
-}
-.lb-name{flex:1;min-width:0}
-.lb-name b{display:block;font-size:14px;font-weight:600}
-.lb-name small{color:var(--ios-sub);font-size:11px}
-.lb-net{font-family:var(--mono);font-weight:800;font-size:13px}
-.up{color:var(--win)}.down{color:var(--loss)}
-/* form pills */
-.pills{display:flex;gap:5px}
-.pill{
-  width:22px;height:22px;border-radius:7px;color:#fff;flex:none;
-  display:flex;align-items:center;justify-content:center;
-  font-size:10px;font-weight:800;font-family:var(--mono);
-  font-style:normal;
-}
-.pill.w{background:var(--win)}.pill.l{background:var(--loss)}
-/* head-to-head */
-.h2h-big{display:flex;align-items:center;justify-content:space-between;padding:6px 4px}
-.h2h-side{display:flex;flex-direction:column;align-items:center;gap:6px;width:72px}
-.h2h-side small{font-size:11px;color:var(--ios-sub);font-weight:600}
-.h2h-score{font-family:var(--mono);font-size:30px;font-weight:800;letter-spacing:-.02em}
-.h2h-score .sep{color:#C7C7CC;padding:0 4px}
-.stat-row{display:flex;justify-content:space-between;align-items:center;padding:9px 4px;border-bottom:1px solid #F0F0F3}
-.stat-row:last-child{border-bottom:0}
-.stat-row span{color:var(--ios-sub);font-size:12px}
-.stat-row b{font-size:13px;font-weight:700}
-/* settle up */
-.amt{
-  font-family:var(--mono);font-size:40px;font-weight:800;text-align:center;
-  letter-spacing:-.03em;padding:6px 0 2px;
-}
-.owe{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--ios-sub);font-size:12px;padding-bottom:6px}
-.pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-top:4px}
-.pay{
-  border-radius:12px;padding:11px 8px;text-align:center;color:#fff;
-  font-weight:700;font-size:12.5px;letter-spacing:-.01em;
-}
-.pay.venmo{background:#3D95CE}.pay.cash{background:#00C244}
-.pay.zelle{background:#6D1ED4}.pay.insta{background:#83264F}
-.settle-btn{
-  background:var(--win);color:#fff;border-radius:14px;text-align:center;
-  font-weight:700;font-size:14px;padding:13px;margin-top:2px;
-}
-.s-tab{
-  margin-top:auto;flex:none;display:flex;justify-content:space-around;
-  padding:10px 8px 22px;background:rgba(255,255,255,.85);
-  border-top:1px solid rgba(0,0,0,.06);font-size:16px;
-}
-.s-tab span{opacity:.3}.s-tab span.on{opacity:1}
+    body.bolt-grabbable {
+      cursor: grab;
+    }
 
-/* hero phone float */
-.float{animation:float 7s ease-in-out infinite}
-@keyframes float{0%,100%{transform:translateY(0) rotate(0.001deg)}50%{transform:translateY(-16px) rotate(0.001deg)}}
-/* glow puck behind hero phone */
-.phone-wrap::before{
-  content:'';position:absolute;width:420px;height:420px;border-radius:50%;
-  background:radial-gradient(circle,rgba(182,255,46,.13),transparent 65%);
-  filter:blur(8px);
-}
+    #page {
+      position: relative;
+      z-index: 1;
+    }
 
-/* ============ MARQUEE ============ */
-.marquee{
-  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
-  background:rgba(255,255,255,.015);
-  overflow:hidden;padding:20px 0;white-space:nowrap;position:relative;
-}
-.marquee-track{display:inline-flex;gap:0;animation:scroll 30s linear infinite;will-change:transform}
-.marquee:hover .marquee-track{animation-play-state:paused}
-.mq{
-  display:inline-flex;align-items:center;gap:12px;padding:0 28px;
-  font-size:17px;font-weight:600;letter-spacing:-.01em;color:var(--muted);
-}
-.mq em{font-style:normal;font-size:20px}
-.mq::after{content:'';width:5px;height:5px;border-radius:50%;background:var(--volt);margin-left:28px;opacity:.5}
-@keyframes scroll{to{transform:translateX(-50%)}}
+    .hero-scroll,
+    .hero-sticky {
+      background: transparent;
+      pointer-events: none;
+    }
 
-/* ============ SECTIONS ============ */
-section{padding:clamp(80px,12vh,140px) clamp(20px,5vw,56px)}
-.shell{max-width:1240px;margin:0 auto}
-.kicker{
-  font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--volt);margin-bottom:18px;display:flex;align-items:center;gap:10px;
-}
-.kicker::before{content:'';width:24px;height:1px;background:var(--volt)}
-h2{
-  font-size:clamp(34px,5.5vw,58px);letter-spacing:-.04em;line-height:1.02;
-  font-weight:700;margin-bottom:18px;
-}
-.lede{color:var(--muted);font-size:clamp(16px,2vw,19px);line-height:1.55;max-width:560px}
+    .hook,
+    .section-block,
+    .settle-showcase,
+    .final-cta,
+    .site-footer {
+      background: var(--bg);
+    }
 
-/* feature cards */
-.cards{
-  display:grid;gap:16px;margin-top:56px;
-  grid-template-columns:repeat(auto-fit,minmax(270px,1fr));
-}
-.fcard{
-  position:relative;border:1px solid var(--line);border-radius:22px;
-  background:var(--glass);padding:28px 24px;overflow:hidden;
-  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
-  transition:transform .35s cubic-bezier(.2,.8,.2,1),border-color .35s,box-shadow .35s;
-}
-.fcard:hover{transform:translateY(-6px);border-color:rgba(182,255,46,.45);box-shadow:0 24px 60px rgba(0,0,0,.45),0 0 0 1px rgba(182,255,46,.18),0 0 40px rgba(182,255,46,.08)}
-.fcard::before{
-  content:'';position:absolute;inset:0;opacity:0;transition:opacity .35s;pointer-events:none;
-  background:radial-gradient(420px 200px at 50% -10%,rgba(182,255,46,.08),transparent 70%);
-}
-.fcard:hover::before{opacity:1}
-.fcard h3{font-size:21px;letter-spacing:-.02em;margin:18px 0 10px;font-weight:700}
-.fcard p{color:var(--muted);font-size:15px;line-height:1.6}
-.fviz{height:96px;display:flex;align-items:center;gap:8px}
+    /* ——— Nav ——— */
+    .site-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.1rem clamp(1.25rem, 4vw, 3.5rem);
+      border-bottom: 1px solid transparent;
+      transition: background 0.35s, border-color 0.35s, backdrop-filter 0.35s;
+    }
 
-/* tiny visualizations inside cards */
-.bars{display:flex;align-items:flex-end;gap:7px;height:64px}
-.bars i{width:16px;border-radius:5px 5px 2px 2px;background:linear-gradient(to top,rgba(182,255,46,.25),var(--volt));display:block}
-.bars i:nth-child(1){height:100%}.bars i:nth-child(2){height:62%}
-.bars i:nth-child(3){height:46%;opacity:.7}.bars i:nth-child(4){height:30%;opacity:.45}.bars i:nth-child(5){height:18%;opacity:.3}
-.viz-score{font-family:var(--mono);font-weight:800;font-size:38px;letter-spacing:-.03em;color:var(--ink)}
-.viz-score .sep{color:var(--dim)}
-.viz-pills{display:flex;gap:6px}
-.viz-pills .pill{width:28px;height:28px;border-radius:9px;font-size:12px}
-.viz-money{font-family:var(--mono);font-weight:800;font-size:34px;color:var(--volt);text-shadow:0 0 30px rgba(182,255,46,.35)}
-.viz-pay{display:flex;gap:8px;flex-wrap:wrap}
-.viz-season{
-  font-family:var(--mono);font-size:13px;font-weight:600;border:1px dashed var(--line-2);
-  border-radius:12px;padding:12px 16px;color:var(--muted);display:inline-flex;align-items:center;gap:10px;
-}
-.viz-season b{color:var(--gold)}
+    .site-nav.scrolled {
+      background: rgba(10, 11, 13, 0.72);
+      border-bottom-color: var(--line);
+      backdrop-filter: blur(16px) saturate(1.3);
+      -webkit-backdrop-filter: blur(16px) saturate(1.3);
+    }
 
-/* ============ SHOWCASE (two phones) ============ */
-.showcase .shell{display:grid;gap:64px}
-.show-row{
-  display:grid;grid-template-columns:1fr;gap:44px;align-items:center;
-}
-.show-copy h3{font-size:clamp(26px,3.6vw,38px);letter-spacing:-.035em;font-weight:700;margin-bottom:14px;line-height:1.05}
-.show-copy p{color:var(--muted);font-size:16.5px;line-height:1.6;max-width:440px}
-.show-copy .tag{
-  font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--volt);display:inline-block;margin-bottom:14px;
-}
-.show-phone{display:flex;justify-content:center}
+    .wordmark {
+      font-weight: 800;
+      font-size: 1.15rem;
+      letter-spacing: -0.04em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
 
-/* ============ HOW IT WORKS ============ */
-.steps{display:grid;gap:14px;margin-top:52px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));counter-reset:step}
-.step{
-  border:1px solid var(--line);border-radius:22px;padding:30px 26px;background:var(--glass);
-  position:relative;counter-increment:step;
-  transition:border-color .35s,transform .35s cubic-bezier(.2,.8,.2,1);
-}
-.step:hover{border-color:var(--line-2);transform:translateY(-4px)}
-.step::before{
-  content:'0' counter(step);
-  font-family:var(--mono);font-size:13px;font-weight:800;color:var(--volt);
-  display:inline-block;margin-bottom:48px;
-  border:1px solid rgba(182,255,46,.35);border-radius:9px;padding:7px 11px;
-  background:var(--volt-dim);
-}
-.step h3{font-size:20px;letter-spacing:-.02em;margin-bottom:10px;font-weight:700}
-.step p{color:var(--muted);font-size:15px;line-height:1.6}
+    .wordmark-mark {
+      width: 0.55rem;
+      height: 0.55rem;
+      background: var(--volt);
+      border-radius: 2px;
+      box-shadow: 0 0 12px rgba(182, 255, 46, 0.45);
+    }
 
-/* ============ TRASH-TALK STRIP ============ */
-.strip{padding-top:0}
-.strip .shell{
-  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
-  padding:clamp(56px,9vh,90px) 0;text-align:center;
-}
-.strip p{
-  font-size:clamp(24px,4.4vw,44px);letter-spacing:-.035em;font-weight:600;line-height:1.18;
-  max-width:880px;margin:0 auto;
-}
-.strip p span{color:var(--dim)}
-.strip p .volt{color:var(--volt)}
-.strip small{
-  display:block;margin-top:26px;font-family:var(--mono);font-size:12px;
-  letter-spacing:.14em;text-transform:uppercase;color:var(--dim);
-}
+    /* ——— Buttons ——— */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.95rem;
+      letter-spacing: -0.01em;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: var(--glass);
+      color: #fff;
+      padding: 0.65rem 1.25rem;
+      cursor: pointer;
+      transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s, background 0.25s;
+    }
 
-/* ============ FINAL CTA ============ */
-.cta{text-align:center;position:relative;overflow:hidden}
-.cta::before{
-  content:'';position:absolute;left:50%;bottom:-40%;transform:translateX(-50%);
-  width:900px;height:600px;border-radius:50%;pointer-events:none;
-  background:radial-gradient(ellipse,rgba(182,255,46,.12),transparent 65%);
-}
-.cta h2{font-size:clamp(64px,14vw,160px);margin-bottom:30px}
-.cta h2 .volt{color:var(--volt);text-shadow:0 0 80px rgba(182,255,46,.4)}
-.cta .lede{margin:0 auto 40px}
+    .btn:hover {
+      transform: translateY(-2px);
+      border-color: rgba(182, 255, 46, 0.45);
+      box-shadow: 0 0 24px rgba(182, 255, 46, 0.14);
+    }
 
-/* ============ FOOTER ============ */
-footer{
-  border-top:1px solid var(--line);
-  padding:36px clamp(20px,5vw,56px);
-  display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between;
-  color:var(--dim);font-size:14px;
-}
-footer .links{display:flex;gap:26px;flex-wrap:wrap}
-footer a{transition:color .25s}
-footer a:hover{color:var(--volt)}
+    .btn-solid {
+      background: var(--volt);
+      color: var(--bg);
+      border-color: var(--volt);
+    }
 
-/* ============ RESPONSIVE ============ */
-@media(min-width:900px){
-  .hero-grid{grid-template-columns:1.15fr .85fr;gap:24px}
-  .show-row{grid-template-columns:1fr 1fr}
-  .show-row.flip .show-copy{order:2}
-  .show-row.flip .show-phone{order:1}
-}
-@media(max-width:899px){
-  .phone-wrap{min-height:auto;margin-top:8px}
-  .hero{padding-bottom:72px}
-}
-@media(max-width:420px){
-  .phone{width:248px}
-  .screen{height:508px}
-  .btn.big{width:100%;justify-content:center}
-  .hero-cta{flex-direction:column;align-items:stretch}
-}
+    .btn-solid:hover {
+      box-shadow: 0 6px 32px rgba(182, 255, 46, 0.32);
+    }
 
-/* ============ REDUCED MOTION ============ */
-@media(prefers-reduced-motion:reduce){
-  html{scroll-behavior:auto}
-  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
-  .float{animation:none}
-  .marquee{padding:20px clamp(20px,5vw,56px)}
-  .marquee-track{animation:none;flex-wrap:wrap;white-space:normal;row-gap:10px}
-  .grain{animation:none}
-  .cursor-glow{display:none}
-}
-</style>
+    .btn-lg {
+      padding: 0.9rem 1.6rem;
+      font-size: 1rem;
+    }
+
+    .btn svg { flex: none; }
+
+    .btn[data-magnetic] {
+      will-change: transform;
+    }
+
+    /* ——— Cursor glow ——— */
+    .cursor-glow {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: min(520px, 90vw);
+      height: min(520px, 90vw);
+      margin: calc(min(260px, 45vw) * -1) 0 0 calc(min(260px, 45vw) * -1);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0;
+      background: radial-gradient(circle, rgba(182, 255, 46, 0.055) 0%, transparent 68%);
+      mix-blend-mode: screen;
+    }
+
+    @media (pointer: fine) {
+      html:not(.reduce-motion) .cursor-glow { opacity: 1; }
+    }
+
+    .hero-scroll {
+      position: relative;
+    }
+
+    .hero-sticky {
+      position: relative;
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .hero-copy {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 0 2rem;
+      max-width: 680px;
+      pointer-events: none;
+      transform: translateY(clamp(-3rem, -5vh, -1.5rem));
+    }
+
+    .hero-brand {
+      display: block;
+      font-family: inherit;
+      font-size: clamp(3rem, 10vw, 6rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+      color: #fff;
+      line-height: 0.95;
+      margin: 0;
+      text-shadow:
+        0 0 80px rgba(10, 11, 13, 0.95),
+        0 2px 4px rgba(0, 0, 0, 0.75),
+        0 8px 36px rgba(0, 0, 0, 0.85);
+    }
+
+    .hero-scroll-hint {
+      position: absolute;
+      bottom: clamp(1.75rem, 5vh, 3rem);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .scroll-hint {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.65rem;
+      color: rgba(154, 154, 160, 0.75);
+      font-size: 0.72rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .scroll-hint::after {
+      content: "";
+      width: 1px;
+      height: 42px;
+      background: linear-gradient(to bottom, rgba(182, 255, 46, 0.55), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.35; transform: scaleY(0.65); }
+      50% { opacity: 1; transform: scaleY(1); }
+    }
+
+    .reduce-motion .scroll-hint::after { animation: none; opacity: 0.5; }
+
+    .reduce-motion .btn:hover,
+    .reduce-motion .settle-badge:hover,
+    .reduce-motion .phone:hover {
+      transform: none;
+    }
+
+    /* ——— Hook ——— */
+    .hook {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6rem clamp(1.5rem, 5vw, 4rem);
+      position: relative;
+      overflow: hidden;
+      border-top: 1px solid var(--line);
+    }
+
+    .hook-glow {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(ellipse 70% 50% at 50% 50%, rgba(182, 255, 46, 0.04), transparent 70%);
+    }
+
+    .hook-inner {
+      position: relative;
+      max-width: 920px;
+      text-align: center;
+    }
+
+    .hook-line {
+      font-size: clamp(2rem, 6.5vw, 4.5rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      margin-bottom: 0.15em;
+    }
+
+    .hook-line span { color: var(--volt); }
+
+    .hook-sub {
+      margin: 1.75rem auto 0;
+      color: rgba(255, 255, 255, 0.72);
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      line-height: 1.6;
+      max-width: 46ch;
+    }
+
+    /* ——— Feature sections ——— */
+    .section-block {
+      padding: clamp(5rem, 12vh, 8rem) clamp(1.5rem, 5vw, 4rem);
+      border-top: 1px solid var(--line);
+      position: relative;
+    }
+
+    .section-shell {
+      max-width: 1140px;
+      margin: 0 auto;
+    }
+
+    .kicker {
+      font-size: 0.72rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--volt);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .kicker::before {
+      content: "";
+      width: 1.5rem;
+      height: 1px;
+      background: var(--volt);
+    }
+
+    .section-title {
+      font-size: clamp(2rem, 4.5vw, 3.25rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.02;
+      margin-bottom: 0.85rem;
+    }
+
+    .section-lede {
+      color: rgba(255, 255, 255, 0.72);
+      font-size: clamp(1rem, 1.8vw, 1.15rem);
+      line-height: 1.6;
+      max-width: 42ch;
+    }
+
+    .feature-row {
+      display: grid;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    @media (min-width: 900px) {
+      .feature-row { grid-template-columns: 1fr 1fr; gap: 4rem; }
+      .feature-row.flip .feature-copy { order: 2; }
+      .feature-row.flip .feature-device { order: 1; }
+    }
+
+    .feature-copy { max-width: 480px; }
+
+    .feature-device {
+      display: flex;
+      justify-content: center;
+      perspective: 1200px;
+    }
+
+    /* ——— Phone mockups ——— */
+    .phone {
+      width: 260px;
+      border-radius: 44px;
+      position: relative;
+      flex: none;
+      background: #16161a;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: inset 0 0 0 5px #000, 0 36px 80px rgba(0, 0, 0, 0.65), 0 0 60px rgba(182, 255, 46, 0.06);
+      padding: 5px;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+
+    .phone::before {
+      content: "";
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 78px;
+      height: 22px;
+      background: #000;
+      border-radius: 12px;
+      z-index: 5;
+    }
+
+    .screen {
+      background: #000;
+      border-radius: 38px;
+      overflow: hidden;
+      height: 530px;
+      position: relative;
+    }
+
+    .screen img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      display: block;
+    }
+
+    .device-glow {
+      position: absolute;
+      width: 340px;
+      height: 340px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(182, 255, 46, 0.1), transparent 65%);
+      filter: blur(8px);
+      pointer-events: none;
+    }
+
+    /* ——— Settle-up showcase ——— */
+    .settle-showcase {
+      padding: clamp(6rem, 14vh, 9rem) clamp(1.5rem, 5vw, 4rem);
+      position: relative;
+      overflow: hidden;
+      border-top: 1px solid var(--line);
+    }
+
+    .settle-showcase::before {
+      content: none;
+    }
+
+    .settle-showcase .section-shell {
+      position: relative;
+      display: grid;
+      gap: 3.5rem;
+      align-items: center;
+    }
+
+    @media (min-width: 900px) {
+      .settle-showcase .section-shell { grid-template-columns: 1fr 1fr; gap: 5rem; }
+    }
+
+    .settle-showcase .section-title {
+      font-size: clamp(2.4rem, 5vw, 3.75rem);
+    }
+
+    .settle-showcase .phone {
+      width: 280px;
+      box-shadow:
+        inset 0 0 0 5px #000,
+        0 40px 100px rgba(0, 0, 0, 0.7),
+        0 0 80px rgba(182, 255, 46, 0.12);
+    }
+
+    .settle-showcase .screen { height: 560px; }
+
+    .settle-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--volt);
+      border: 1px solid rgba(182, 255, 46, 0.35);
+      background: rgba(182, 255, 46, 0.08);
+      border-radius: 999px;
+      padding: 0.45rem 0.9rem;
+      margin-bottom: 1.25rem;
+      transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+    }
+
+    .settle-badge:hover {
+      border-color: rgba(182, 255, 46, 0.65);
+      box-shadow: 0 0 28px rgba(182, 255, 46, 0.12);
+      transform: translateY(-2px);
+    }
+
+    .phone {
+      transition: box-shadow 0.4s, transform 0.4s;
+    }
+
+    @media (pointer: fine) {
+      .phone:hover {
+        box-shadow:
+          inset 0 0 0 5px #000,
+          0 42px 90px rgba(0, 0, 0, 0.72),
+          0 0 72px rgba(182, 255, 46, 0.1);
+      }
+    }
+
+    .footer-links a,
+    .wordmark {
+      transition: color 0.25s, opacity 0.25s, transform 0.25s;
+    }
+
+    .wordmark:hover { opacity: 0.88; }
+
+    .section-lede,
+    .hook-sub {
+      transition: color 0.3s;
+    }
+
+    .feature-copy:hover .section-title {
+      text-shadow: 0 0 40px rgba(182, 255, 46, 0.08);
+    }
+
+    /* ——— Final CTA ——— */
+    .final-cta {
+      text-align: center;
+      padding: clamp(6rem, 14vh, 10rem) clamp(1.5rem, 5vw, 4rem);
+      position: relative;
+      overflow: hidden;
+      border-top: 1px solid var(--line);
+    }
+
+    .final-cta-glow {
+      position: absolute;
+      left: 50%;
+      bottom: -30%;
+      transform: translateX(-50%);
+      width: min(900px, 120vw);
+      height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(182, 255, 46, 0.1), transparent 65%);
+      pointer-events: none;
+    }
+
+    .final-cta-inner { position: relative; max-width: 640px; margin: 0 auto; }
+
+    .cta-bolt {
+      width: clamp(56px, 10vw, 80px);
+      height: auto;
+      margin: 0 auto 1.5rem;
+      filter: drop-shadow(0 0 32px rgba(182, 255, 46, 0.45));
+    }
+
+    .final-cta h2 {
+      font-size: clamp(2.8rem, 8vw, 5rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 0.95;
+      margin-bottom: 1rem;
+    }
+
+    .final-cta p {
+      color: rgba(255, 255, 255, 0.72);
+      font-size: clamp(1rem, 2vw, 1.15rem);
+      margin-bottom: 2rem;
+    }
+
+    /* ——— Footer ——— */
+    .site-footer {
+      border-top: 1px solid var(--line);
+      padding: 2rem clamp(1.5rem, 5vw, 4rem);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      justify-content: space-between;
+      color: rgba(154, 154, 160, 0.75);
+      font-size: 0.875rem;
+    }
+
+    .footer-links { display: flex; gap: 1.75rem; flex-wrap: wrap; }
+    .footer-links a { transition: color 0.25s; }
+    .footer-links a:hover { color: var(--volt); }
+
+    /* ——— Reveal helpers ——— */
+    .reveal, .reveal-line {
+      will-change: transform, opacity;
+    }
+
+    .reduce-motion .reveal,
+    .reduce-motion .reveal-line {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .fallback {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.25rem;
+      text-align: center;
+      padding: 2rem;
+      pointer-events: none;
+    }
+
+    .fallback img {
+      width: min(42vw, 220px);
+      height: auto;
+      filter: drop-shadow(0 0 40px rgba(182, 255, 46, 0.45));
+    }
+
+    .fallback p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .phase-tag {
+      position: fixed;
+      bottom: 1.25rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(154, 154, 160, 0.7);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .no-webgl .fallback { display: flex; }
+    .no-webgl .canvas-wrap { display: none; }
+
+    @media (max-width: 899px) {
+      .feature-row.flip .feature-copy,
+      .feature-row.flip .feature-device { order: unset; }
+    }
+
+    @media (max-width: 480px) {
+      .phone { width: 236px; }
+      .screen { height: 480px; }
+      .settle-showcase .phone { width: 252px; }
+      .settle-showcase .screen { height: 510px; }
+      .btn-lg { width: 100%; }
+      .hero-copy { transform: translateY(-3vh); padding: 0 1.25rem; }
+    }
+
+    .is-mobile .canvas-wrap::after {
+      background: radial-gradient(ellipse at center, transparent 35%, rgba(0, 0, 0, 0.62) 100%);
+    }
+  </style>
 </head>
 <body>
+  <div class="cursor-glow" id="cursor-glow" aria-hidden="true"></div>
 
-<div class="mesh"></div>
-<div class="grain"></div>
-<div class="progress" id="progress"></div>
-<div class="cursor-glow" id="glow"></div>
+  <nav class="site-nav" id="site-nav" aria-label="Main">
+    <a class="wordmark" href="#top"><span class="wordmark-mark" aria-hidden="true"></span>Smack</a>
+    <a class="btn btn-solid" href="#get" data-magnetic>Get the App</a>
+  </nav>
 
-<nav id="nav">
-  <a class="wordmark" href="#top"><span class="tick"></span>Smack</a>
-  <a class="btn solid" href="#get">Get the App</a>
-</nav>
+  <div class="canvas-wrap" id="canvas-wrap">
+    <canvas id="bolt-canvas" aria-hidden="true"></canvas>
+  </div>
 
-<main id="top">
+  <div class="fallback" role="img" aria-label="Smack lightning bolt logo">
+    <img src="icon.png" alt="" width="220" height="220" />
+    <p>Smack</p>
+  </div>
 
-<!-- ============ HERO ============ -->
-<header class="hero">
-  <div class="hero-grid">
-    <div>
-      <span class="eyebrow"><span class="dot"></span>For groups that keep score</span>
-      <h1 id="headline">
-        <span class="line"><span class="w">Every</span> <span class="w">game.</span></span>
-        <span class="line"><span class="w">Every</span> <span class="w">score.</span></span>
-        <span class="line"><span class="w volt">Settled.</span></span>
-      </h1>
-      <p class="sub reveal">Track poker nights, FIFA matches, ping pong wars and more with your friends. Leaderboards, head-to-head records, and bets settled in one tap.</p>
-      <div class="hero-cta reveal">
-        <a class="btn solid big" href="#get">
+  <main id="page">
+    <section class="hero-scroll" id="hero-scroll">
+      <div class="hero-sticky" id="hero-sticky">
+        <div class="hero-copy" id="hero-copy">
+          <h1 class="hero-brand" id="top">SMACK.</h1>
+        </div>
+        <div class="hero-scroll-hint scroll-hint" id="hero-scroll-hint">Scroll</div>
+      </div>
+    </section>
+
+    <section class="hook" id="hook">
+      <div class="hook-glow parallax-bg" aria-hidden="true"></div>
+      <div class="hook-inner">
+        <p class="hook-line reveal-line"><span>One app</span> for every game your crew plays.</p>
+        <p class="hook-sub reveal">Poker nights. FIFA wars. Ping pong grudges. Pool hall debts. If your group keeps score, Smack tracks it.</p>
+      </div>
+    </section>
+
+    <section class="section-block" id="leaderboards">
+      <div class="section-shell feature-row">
+        <div class="feature-copy">
+          <p class="kicker reveal">Leaderboards</p>
+          <h2 class="section-title reveal">Know who's actually winning.</h2>
+          <p class="section-lede reveal">Season rankings across every game your group logs. Wins, losses, net — the truth in one tap.</p>
+        </div>
+        <div class="feature-device reveal">
+          <div class="device-glow" aria-hidden="true"></div>
+          <div class="phone" data-tilt>
+            <div class="screen">
+              <img src="assets/screenshots/leaderboard.PNG" alt="Smack leaderboard screen" width="1170" height="2532" loading="lazy" decoding="async" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block">
+      <div class="section-shell feature-row flip">
+        <div class="feature-copy">
+          <p class="kicker reveal">Head-to-Head</p>
+          <h2 class="section-title reveal">Settle every rivalry.</h2>
+          <p class="section-lede reveal">Your record against each friend, all-time. Win rate, streaks, biggest night — receipts for every rematch.</p>
+        </div>
+        <div class="feature-device reveal">
+          <div class="device-glow" aria-hidden="true"></div>
+          <div class="phone" data-tilt>
+            <div class="screen">
+              <img src="assets/screenshots/head-to-head.PNG" alt="Smack head-to-head screen" width="1170" height="2532" loading="lazy" decoding="async" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="settle-showcase" id="settle">
+      <div class="section-shell">
+        <div class="feature-copy">
+          <span class="settle-badge reveal">Killer feature</span>
+          <p class="kicker reveal">Settle Up</p>
+          <h2 class="section-title reveal">Square up in seconds.</h2>
+          <p class="section-lede reveal">The bet settles the second the game ends. Venmo, Cash App, Zelle, InstaPay — loser taps once, debt cleared. No "I'll get you next time."</p>
+        </div>
+        <div class="feature-device reveal">
+          <div class="device-glow" aria-hidden="true"></div>
+          <div class="phone" data-tilt>
+            <div class="screen">
+              <img src="assets/screenshots/settle-up.PNG" alt="Smack settle up screen" width="1170" height="2532" loading="lazy" decoding="async" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block" id="stats">
+      <div class="section-shell feature-row">
+        <div class="feature-copy">
+          <p class="kicker reveal">Stats</p>
+          <h2 class="section-title reveal">Track your whole game.</h2>
+          <p class="section-lede reveal">Win rates, hot streaks, season arcs — every stat your group argues about, finally in one place.</p>
+        </div>
+        <div class="feature-device reveal">
+          <div class="device-glow" aria-hidden="true"></div>
+          <div class="phone" data-tilt>
+            <div class="screen">
+              <img src="assets/screenshots/stats.PNG" alt="Smack stats screen" width="1170" height="2532" loading="lazy" decoding="async" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="final-cta" id="get">
+      <div class="final-cta-glow parallax-bg" aria-hidden="true"></div>
+      <div class="final-cta-inner">
+        <img class="cta-bolt reveal" src="icon.png" alt="" width="80" height="80" />
+        <h2 class="reveal">Settle it.</h2>
+        <p class="reveal">Your crew's scoreboard is one download away.</p>
+        <a class="btn btn-solid btn-lg reveal" href="#" data-magnetic>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8.79-.16 2.1-.85 3.54-.73 1.22.1 2.32.55 3.04 1.49-3.04 1.86-2.32 5.55.46 6.7-.65 1.71-1.5 3.4-2.12 4.71zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
           Download on the App Store
         </a>
-        <a class="btn big" href="#features">See how it works</a>
       </div>
-      <div class="live-chips reveal">
-        <span class="chip">tonight <b data-count="7" data-suffix=" games">0 games</b></span>
-        <span class="chip">on the line <b data-count="45" data-prefix="+$">+$0</b></span>
-        <span class="chip">streak <b>W&thinsp;W&thinsp;W</b></span>
-      </div>
-      <p class="hero-note reveal">// free to download — costs your friends their dignity</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>© 2026 Smack</span>
+    <div class="footer-links">
+      <a href="privacy.html">Privacy</a>
+      <a href="privacy.html">Terms</a>
+      <a href="mailto:husseinabdou06@gmail.com">Contact</a>
     </div>
+  </footer>
 
-    <!-- hero phone: leaderboard -->
-    <div class="phone-wrap reveal" id="heroPhone">
-      <div class="phone float">
-        <div class="screen">
-          <div class="s-status"></div>
-          <div class="s-head">
-            <span class="s-title">Leaderboard</span>
-            <span class="s-chip">Season 3</span>
-          </div>
-          <div class="s-body">
-            <div class="card lb-row"><span class="rank-dot g"></span><span class="avi" style="background:#6366F1">O</span><span class="lb-name"><b>Omar</b><small>14W – 5L</small></span><span class="lb-net up">+$120</span></div>
-            <div class="card lb-row"><span class="rank-dot s"></span><span class="avi" style="background:#0EA5E9">Y</span><span class="lb-name"><b>You</b><small>12W – 7L</small></span><span class="lb-net up">+$65</span></div>
-            <div class="card lb-row"><span class="rank-dot b"></span><span class="avi" style="background:#F59E0B">S</span><span class="lb-name"><b>Sara</b><small>10W – 8L</small></span><span class="lb-net up">+$20</span></div>
-            <div class="card lb-row"><span class="rank-dot n"></span><span class="avi" style="background:#EC4899">A</span><span class="lb-name"><b>Adam</b><small>8W – 11L</small></span><span class="lb-net down">−$85</span></div>
-            <div class="card lb-row"><span class="rank-dot n"></span><span class="avi" style="background:#8B5CF6">K</span><span class="lb-name"><b>Karim</b><small>5W – 13L</small></span><span class="lb-net down">−$120</span></div>
-            <div class="card">
-              <div class="stat-row"><span>Last game</span><b>Poker · Omar won</b></div>
-              <div class="stat-row"><span>Form</span><span class="pills"><i class="pill w">W</i><i class="pill w">W</i><i class="pill l">L</i><i class="pill w">W</i><i class="pill w">W</i></span></div>
-            </div>
-          </div>
-          <div class="s-tab"><span class="on">🏆</span><span>⚔️</span><span>➕</span><span>📈</span><span>👤</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</header>
+  <div class="phase-tag">Phase 5 — Polish</div>
 
-<!-- ============ MARQUEE ============ -->
-<div class="marquee" aria-hidden="true">
-  <div class="marquee-track" id="mq">
-    <span class="mq"><em>♠️</em>Poker</span><span class="mq"><em>⚽</em>FIFA</span><span class="mq"><em>🏀</em>NBA 2K</span><span class="mq"><em>🏓</em>Ping Pong</span><span class="mq"><em>🎾</em>Padel</span><span class="mq"><em>🎱</em>Pool</span><span class="mq"><em>🎯</em>Darts</span><span class="mq"><em>♟️</em>Chess</span><span class="mq"><em>🃏</em>Card Games</span><span class="mq"><em>🏸</em>Badminton</span>
-  </div>
-</div>
-
-<!-- ============ FEATURES ============ -->
-<section id="features">
-  <div class="shell">
-    <p class="kicker reveal">What it does</p>
-    <h2 class="reveal">Keep score on<br>everything.</h2>
-    <p class="lede reveal">One app for every game your group plays. The numbers don't lie — even when your friends do.</p>
-
-    <div class="cards">
-      <div class="fcard reveal">
-        <div class="fviz"><div class="bars"><i></i><i></i><i></i><i></i><i></i></div></div>
-        <h3>Leaderboards</h3>
-        <p>Who actually runs the group. Ranked by wins, every game counted. Screenshot it. Send it. Say nothing.</p>
-      </div>
-      <div class="fcard reveal">
-        <div class="fviz"><span class="viz-score"><span data-count="7">0</span><span class="sep"> – </span><span data-count="3">0</span></span></div>
-        <h3>Head-to-Head</h3>
-        <p>Your record against each friend, all-time. Fuel for the group chat. Receipts for the rematch.</p>
-      </div>
-      <div class="fcard reveal">
-        <div class="fviz"><div class="viz-pills" id="formPills"><i class="pill w">W</i><i class="pill w">W</i><i class="pill w">W</i><i class="pill l">L</i><i class="pill w">W</i></div></div>
-        <h3>Streaks &amp; Stats</h3>
-        <p>Win rates, hot streaks, all-time records. Know exactly how good you are. Or aren't.</p>
-      </div>
-      <div class="fcard reveal">
-        <div class="fviz"><span class="viz-money" data-count="45" data-prefix="+$">+$0</span></div>
-        <h3>Settle Up</h3>
-        <p>Loser pays. Venmo, Cash App, Zelle and InstaPay built in — debts cleared before the excuses start.</p>
-      </div>
-      <div class="fcard reveal">
-        <div class="fviz"><span class="viz-season">SEASON 3 → <b>🏆 NEW CHAMP</b></span></div>
-        <h3>Seasons</h3>
-        <p>Wipe the slate. Crown a new champion. Last season never happened — unless you won it.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============ SHOWCASE ============ -->
-<section class="showcase" style="padding-top:0">
-  <div class="shell">
-
-    <div class="show-row">
-      <div class="show-copy reveal">
-        <span class="tag">Head-to-Head</span>
-        <h3>You vs. them.<br>On the record.</h3>
-        <p>Every matchup tracked since day one. Win rate, current streak, biggest night — the whole rivalry in one screen. The group chat can argue. The record can't.</p>
-      </div>
-      <div class="show-phone reveal">
-        <div class="phone">
-          <div class="screen">
-            <div class="s-status"></div>
-            <div class="s-head"><span class="s-title">Head-to-Head</span><span class="s-chip">All time</span></div>
-            <div class="s-body">
-              <div class="card">
-                <div class="h2h-big">
-                  <span class="h2h-side"><span class="avi" style="background:#0EA5E9">Y</span><small>You</small></span>
-                  <span class="h2h-score">7<span class="sep">–</span>3</span>
-                  <span class="h2h-side"><span class="avi" style="background:#EC4899">A</span><small>Adam</small></span>
-                </div>
-              </div>
-              <div class="card">
-                <div class="stat-row"><span>Win rate</span><b style="color:var(--win)">70%</b></div>
-                <div class="stat-row"><span>Current streak</span><b>W3 🔥</b></div>
-                <div class="stat-row"><span>Biggest win</span><b>+$60 · Poker</b></div>
-                <div class="stat-row"><span>Most played</span><b>FIFA · 6 games</b></div>
-              </div>
-              <div class="card">
-                <div class="stat-row"><span>Recent form</span><span class="pills"><i class="pill w">W</i><i class="pill w">W</i><i class="pill w">W</i><i class="pill l">L</i><i class="pill w">W</i></span></div>
-              </div>
-            </div>
-            <div class="s-tab"><span>🏆</span><span class="on">⚔️</span><span>➕</span><span>📈</span><span>👤</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="show-row flip">
-      <div class="show-copy reveal">
-        <span class="tag">Settle Up</span>
-        <h3>Loser pays.<br>Right now.</h3>
-        <p>The bet settles the second the game ends. Venmo, Cash App, Zelle, InstaPay — whoever lost taps once, and it's done. No "I'll get you next time." There is no next time.</p>
-      </div>
-      <div class="show-phone reveal">
-        <div class="phone">
-          <div class="screen">
-            <div class="s-status"></div>
-            <div class="s-head"><span class="s-title">Settle Up</span></div>
-            <div class="s-body">
-              <div class="card">
-                <div class="amt">$24</div>
-                <div class="owe"><span class="avi" style="background:#0EA5E9;width:22px;height:22px;font-size:10px">Y</span> You owe <b style="color:var(--ios-ink)">Sara</b> <span class="avi" style="background:#F59E0B;width:22px;height:22px;font-size:10px">S</span></div>
-              </div>
-              <div class="card">
-                <div class="stat-row" style="border-bottom:0;padding-top:2px;padding-bottom:2px"><span>Pay with</span><b></b></div>
-                <div class="pay-grid">
-                  <span class="pay venmo">Venmo</span>
-                  <span class="pay cash">Cash App</span>
-                  <span class="pay zelle">Zelle</span>
-                  <span class="pay insta">InstaPay</span>
-                </div>
-              </div>
-              <div class="settle-btn">Mark as settled ✓</div>
-              <div class="card">
-                <div class="stat-row"><span>From</span><b>Poker · tonight</b></div>
-                <div class="stat-row"><span>Status</span><b style="color:var(--loss)">Unpaid</b></div>
-              </div>
-            </div>
-            <div class="s-tab"><span>🏆</span><span>⚔️</span><span class="on">➕</span><span>📈</span><span>👤</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<!-- ============ HOW IT WORKS ============ -->
-<section id="how" style="padding-top:0">
-  <div class="shell">
-    <p class="kicker reveal">How it works</p>
-    <h2 class="reveal">Three steps to<br>bragging rights.</h2>
-    <div class="steps">
-      <div class="step reveal">
-        <h3>Create your group</h3>
-        <p>Add your friends. Pick your games. One group for the poker night, the FIFA lobby, the office ping pong table — all of it.</p>
-      </div>
-      <div class="step reveal">
-        <h3>Log the game</h3>
-        <p>Winner, loser, what was on the line. Ten seconds, done. The leaderboard updates itself.</p>
-      </div>
-      <div class="step reveal">
-        <h3>Talk your smack</h3>
-        <p>You've got the receipts now. Streaks, records, head-to-heads — backed by data, sealed with a payment request.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============ STRIP ============ -->
-<section class="strip">
-  <div class="shell reveal">
-    <p>Built for group chats that argue about <span>who's better.</span><br>Now there's <span class="volt">a scoreboard.</span></p>
-    <small>No ads · No tracking · Just scores</small>
-  </div>
-</section>
-
-<!-- ============ FINAL CTA ============ -->
-<section class="cta" id="get">
-  <div class="shell">
-    <h2 class="reveal">Settle <span class="volt">it.</span></h2>
-    <p class="lede reveal">Your move. Literally.</p>
-    <div class="reveal">
-      <a class="btn solid big" href="#">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8.79-.16 2.1-.85 3.54-.73 1.22.1 2.32.55 3.04 1.49-3.04 1.86-2.32 5.55.46 6.7-.65 1.71-1.5 3.4-2.12 4.71zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
-        Download on the App Store
-      </a>
-    </div>
-  </div>
-</section>
-
-</main>
-
-<footer>
-  <span>© 2026 Smack</span>
-  <div class="links">
-    <a href="privacy.html">Privacy Policy</a>
-    <a href="mailto:husseinabdou06@gmail.com">Contact</a>
-  </div>
-</footer>
-
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-<script>
-(function(){
-  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var nav = document.getElementById('nav');
-
-  function onScroll(){ nav.classList.toggle('scrolled', window.scrollY > 24); }
-  window.addEventListener('scroll', onScroll, {passive:true});
-  onScroll();
-
-  // duplicate marquee content so the 50% translate loops seamlessly
-  var mq = document.getElementById('mq');
-  if (mq && !reduced) mq.innerHTML += mq.innerHTML;
-
-  if (reduced || typeof gsap === 'undefined') {
-    // reduced motion / no JS-lib: show final numbers immediately, no animation layer
-    document.querySelectorAll('[data-count]').forEach(function(el){
-      el.textContent = (el.dataset.prefix||'') + el.dataset.count + (el.dataset.suffix||'');
-    });
-    var pr = document.getElementById('progress');
-    if (pr) pr.style.display = 'none';
-    return;
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
+      "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js",
+      "gsap/ScrollTrigger": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/ScrollTrigger.js",
+      "lenis": "https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.mjs"
+    }
   }
+  </script>
+  <script type="module">
+    import * as THREE from "three";
+    import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+    import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+    import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+    import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+    import gsap from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+    import Lenis from "lenis";
 
-  gsap.registerPlugin(ScrollTrigger);
+    gsap.registerPlugin(ScrollTrigger);
 
-  // scroll progress bar
-  gsap.to('#progress', {
-    scaleX: 1, ease: 'none',
-    scrollTrigger: { start: 0, end: 'max', scrub: 0.3 }
-  });
+    const VOLT = 0xB6FF2E;
+    const BOLT_VERTICES = [
+      [853, 193], [396, 316], [307, 509], [551, 556], [535, 581],
+      [366, 636], [187, 820], [641, 670], [739, 489], [480, 438],
+      [496, 412], [678, 363],
+    ];
+    const BOLT_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><path d="M 853 193 L 396 316 L 307 509 L 551 556 L 535 581 L 366 636 L 187 820 L 641 670 L 739 489 L 480 438 L 496 412 L 678 363 Z"/></svg>`;
 
-  // cursor glow
-  if (window.matchMedia('(pointer:fine)').matches) {
-    var gx = gsap.quickTo('#glow', 'x', {duration:.5, ease:'power3'});
-    var gy = gsap.quickTo('#glow', 'y', {duration:.5, ease:'power3'});
-    window.addEventListener('mousemove', function(e){ gx(e.clientX); gy(e.clientY); }, {passive:true});
-  }
+    const BASE_ROT = { x: -0.06, y: 0.18 };
+    const CAM_START = { x: 0.12, y: 0.04, z: 4.1 };
+    const BOLT_TARGET_SIZE = 1.65;
+    const BOLT_DEPTH_SLIM = 0.72;
+    const FINAL_EMISSIVE = 0.38;
+    const FINAL_EDGE_OPACITY = 0.95;
+    const FINAL_GLOW_OPACITY = 0.12;
+    const FINAL_BLOOM = 0.52;
+    const HERO_INTERACT_MAX = 0.025;
+    const DRAG_SENS = 0.0032;
+    const DRAG_Z_SENS = 0.0011;
+    const DRAG_SMOOTH = 0.09;
+    const SPIN_FRICTION = 0.985;
+    const SPIN_MIN = 0.00025;
+    const SCROLL_ROT_BLEND = 0.12;
 
-  // hero entrance
-  var tl = gsap.timeline({defaults:{ease:'power4.out'}});
-  tl.from('#headline .w', {yPercent:115, duration:1.1, stagger:0.09}, 0.15)
-    .from('.eyebrow', {opacity:0, y:14, duration:.7}, 0.3)
-    .from('.hero .sub, .hero-cta, .live-chips, .hero-note', {opacity:0, y:24, duration:.8, stagger:.1}, 0.7)
-    .from('#heroPhone', {opacity:0, y:60, scale:.94, duration:1.2, ease:'power3.out'}, 0.6);
+    const canvas = document.getElementById("bolt-canvas");
+    const canvasWrap = document.getElementById("canvas-wrap");
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const finePointer = window.matchMedia("(pointer: fine)").matches;
+    const isCoarseMobile = window.matchMedia("(pointer: coarse)").matches && window.innerWidth < 900;
 
-  // hero phone parallax drift
-  gsap.to('#heroPhone', {
-    yPercent: -10, ease: 'none',
-    scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 0.6 }
-  });
+    if (prefersReducedMotion) {
+      document.documentElement.classList.add("reduce-motion");
+    }
 
-  // section reveals
-  gsap.utils.toArray('.reveal').forEach(function(el){
-    if (el.closest('.hero')) return; // hero handled above
-    gsap.from(el, {
-      opacity: 0, y: 36, duration: 0.9, ease: 'power3.out',
-      scrollTrigger: { trigger: el, start: 'top 86%', once: true }
-    });
-  });
+    if (isCoarseMobile) {
+      document.body.classList.add("is-mobile");
+    }
 
-  // showcase phones: slow parallax
-  gsap.utils.toArray('.show-phone .phone').forEach(function(ph){
-    gsap.to(ph, {
-      y: -28, ease: 'none',
-      scrollTrigger: { trigger: ph, start: 'top bottom', end: 'bottom top', scrub: 0.8 }
-    });
-  });
+    function showFallback() {
+      document.body.classList.add("no-webgl");
+    }
 
-  // number tickers
-  document.querySelectorAll('[data-count]').forEach(function(el){
-    var end = parseInt(el.dataset.count, 10);
-    var pre = el.dataset.prefix || '';
-    var suf = el.dataset.suffix || '';
-    var obj = {v: 0};
-    gsap.to(obj, {
-      v: end, duration: 1.6, ease: 'power2.out',
-      scrollTrigger: { trigger: el, start: 'top 90%', once: true },
-      onUpdate: function(){ el.textContent = pre + Math.round(obj.v) + suf; }
-    });
-  });
+    function getPixelRatio() {
+      if (prefersReducedMotion) return 1;
+      const coarse = window.matchMedia("(pointer: coarse)").matches;
+      const cap = coarse ? 1.75 : 2.75;
+      return Math.min(window.devicePixelRatio, cap);
+    }
 
-  // W/L pills pop in one by one
-  gsap.utils.toArray('.pills .pill, .viz-pills .pill').forEach(function(p, i){
-    gsap.from(p, {
-      scale: 0, opacity: 0, duration: .45, ease: 'back.out(2.5)',
-      scrollTrigger: { trigger: p, start: 'top 92%', once: true },
-      delay: (i % 5) * 0.12
-    });
-  });
-})();
-</script>
+    let lenis = null;
+
+    if (!prefersReducedMotion) {
+      lenis = new Lenis({
+        lerp: 0.085,
+        smoothWheel: true,
+        wheelMultiplier: 0.95,
+        touchMultiplier: 1.15,
+      });
+
+      lenis.on("scroll", ScrollTrigger.update);
+
+      gsap.ticker.add((time) => {
+        lenis.raf(time * 1000);
+      });
+      gsap.ticker.lagSmoothing(0);
+    }
+
+    function initPageMotion() {
+      const nav = document.getElementById("site-nav");
+      if (nav) {
+        const onNavScroll = () => nav.classList.toggle("scrolled", window.scrollY > 24);
+        window.addEventListener("scroll", onNavScroll, { passive: true });
+        onNavScroll();
+      }
+
+      if (prefersReducedMotion) return;
+
+      gsap.utils.toArray(".reveal").forEach((el) => {
+        if (el.closest(".hero-scroll")) return;
+        gsap.from(el, {
+          opacity: 0,
+          y: 48,
+          scale: 0.98,
+          duration: 0.95,
+          ease: "power3.out",
+          scrollTrigger: { trigger: el, start: "top 86%", once: true },
+        });
+      });
+
+      gsap.utils.toArray(".reveal-line").forEach((el, index) => {
+        gsap.from(el, {
+          opacity: 0,
+          y: 56,
+          duration: 1,
+          ease: "power4.out",
+          scrollTrigger: { trigger: "#hook", start: "top 72%", once: true },
+          delay: index * 0.1,
+        });
+      });
+
+      gsap.from("#hook .hook-sub", {
+        opacity: 0,
+        y: 32,
+        duration: 0.9,
+        ease: "power3.out",
+        scrollTrigger: { trigger: "#hook", start: "top 65%", once: true },
+        delay: 0.25,
+      });
+
+      gsap.utils.toArray(".parallax-bg").forEach((el) => {
+        gsap.to(el, {
+          yPercent: 16,
+          ease: "none",
+          scrollTrigger: {
+            trigger: el.parentElement,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 0.55,
+          },
+        });
+      });
+
+      gsap.utils.toArray("[data-tilt]").forEach((phone) => {
+        gsap.to(phone, {
+          y: -22,
+          ease: "none",
+          scrollTrigger: {
+            trigger: phone,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 0.75,
+          },
+        });
+      });
+
+      initDeviceTilt();
+      ScrollTrigger.refresh();
+    }
+
+    function initPolish() {
+      initCursorGlow();
+      initMagneticButtons();
+    }
+
+    function initCursorGlow() {
+      const glow = document.getElementById("cursor-glow");
+      if (!glow || !finePointer || prefersReducedMotion) return;
+
+      const moveX = gsap.quickTo(glow, "x", { duration: 0.55, ease: "power3.out" });
+      const moveY = gsap.quickTo(glow, "y", { duration: 0.55, ease: "power3.out" });
+
+      window.addEventListener("mousemove", (event) => {
+        moveX(event.clientX);
+        moveY(event.clientY);
+      }, { passive: true });
+    }
+
+    function initMagneticButtons() {
+      if (!finePointer || prefersReducedMotion) return;
+
+      document.querySelectorAll("[data-magnetic]").forEach((btn) => {
+        btn.addEventListener("mousemove", (event) => {
+          const rect = btn.getBoundingClientRect();
+          const x = (event.clientX - rect.left - rect.width / 2) * 0.28;
+          const y = (event.clientY - rect.top - rect.height / 2) * 0.28;
+          gsap.to(btn, { x, y, duration: 0.35, ease: "power2.out" });
+        }, { passive: true });
+
+        btn.addEventListener("mouseleave", () => {
+          gsap.to(btn, { x: 0, y: 0, duration: 0.55, ease: "elastic.out(1, 0.65)" });
+        }, { passive: true });
+      });
+    }
+
+    function initDeviceTilt() {
+      if (!finePointer || prefersReducedMotion) return;
+
+      document.querySelectorAll("[data-tilt]").forEach((phone) => {
+        phone.addEventListener("mousemove", (event) => {
+          const rect = phone.getBoundingClientRect();
+          const x = (event.clientX - rect.left) / rect.width - 0.5;
+          const y = (event.clientY - rect.top) / rect.height - 0.5;
+          gsap.to(phone, {
+            rotateY: x * 14,
+            rotateX: -y * 10,
+            duration: 0.45,
+            ease: "power2.out",
+            transformPerspective: 1200,
+          });
+        }, { passive: true });
+
+        phone.addEventListener("mouseleave", () => {
+          gsap.to(phone, {
+            rotateY: 0,
+            rotateX: 0,
+            duration: 0.65,
+            ease: "power2.out",
+          });
+        }, { passive: true });
+      });
+    }
+
+    function createBoltShape() {
+      const shape = new THREE.Shape();
+      shape.moveTo(BOLT_VERTICES[0][0], -BOLT_VERTICES[0][1]);
+      for (let i = 1; i < BOLT_VERTICES.length; i += 1) {
+        shape.lineTo(BOLT_VERTICES[i][0], -BOLT_VERTICES[i][1]);
+      }
+      shape.closePath();
+      return shape;
+    }
+
+    function centroid2D(points) {
+      let area = 0;
+      let cx = 0;
+      let cy = 0;
+      for (let i = 0; i < points.length; i += 1) {
+        const p0 = points[i];
+        const p1 = points[(i + 1) % points.length];
+        const cross = p0.x * p1.y - p1.x * p0.y;
+        area += cross;
+        cx += (p0.x + p1.x) * cross;
+        cy += (p0.y + p1.y) * cross;
+      }
+      area *= 0.5;
+      cx /= 6 * area;
+      cy /= 6 * area;
+      return new THREE.Vector2(cx, cy);
+    }
+
+    function triangleCentroid2D(a, b, c) {
+      return new THREE.Vector2((a.x + b.x + c.x) / 3, (a.y + b.y + c.y) / 3);
+    }
+
+    function createShardShapes(shape) {
+      const points = shape.getPoints();
+      const hub = centroid2D(points);
+      const triangles = THREE.ShapeUtils.triangulateShape(points, []);
+      const shards = [];
+
+      if (!triangles.length) {
+        throw new Error("Bolt triangulation failed");
+      }
+
+      triangles.forEach((tri) => {
+        const a = points[tri[0]];
+        const b = points[tri[1]];
+        const c = points[tri[2]];
+        const shardShape = new THREE.Shape();
+        shardShape.moveTo(a.x, a.y);
+        shardShape.lineTo(b.x, b.y);
+        shardShape.lineTo(c.x, c.y);
+        shardShape.closePath();
+
+        const shardCenter = triangleCentroid2D(a, b, c);
+        const scatterDir = new THREE.Vector3(
+          shardCenter.x - hub.x,
+          shardCenter.y - hub.y,
+          (Math.random() - 0.5) * 0.25
+        );
+        if (scatterDir.lengthSq() < 1e-8) {
+          scatterDir.set((Math.random() - 0.5) * 0.4, (Math.random() - 0.5) * 0.4, 0.35);
+        }
+        scatterDir.normalize();
+
+        shards.push({ shape: shardShape, scatterDir });
+      });
+
+      return { shards };
+    }
+
+    function normalizeShardGeometries(geometries, targetSize) {
+      const box = new THREE.Box3();
+      geometries.forEach((geo) => {
+        geo.computeBoundingBox();
+        box.union(geo.boundingBox);
+      });
+
+      const size = new THREE.Vector3();
+      box.getSize(size);
+      const center = new THREE.Vector3();
+      box.getCenter(center);
+      const maxDim = Math.max(size.x, size.y);
+      const scale = targetSize / maxDim;
+
+      geometries.forEach((geo) => {
+        geo.translate(-center.x, -center.y, -center.z);
+        geo.scale(scale, scale, scale);
+        if (BOLT_DEPTH_SLIM !== 1) {
+          geo.scale(1, 1, BOLT_DEPTH_SLIM);
+        }
+        geo.computeVertexNormals();
+      });
+    }
+
+    function initBoltScene(canvas) {
+      const useLite3D = isCoarseMobile && !prefersReducedMotion;
+      const activeBloom = prefersReducedMotion ? FINAL_BLOOM : (useLite3D ? 0.38 : FINAL_BLOOM);
+
+      const renderer = new THREE.WebGLRenderer({
+        canvas,
+        antialias: true,
+        alpha: true,
+        powerPreference: "high-performance",
+        stencil: false,
+      });
+      renderer.setClearColor(0x000000, 0);
+      renderer.setPixelRatio(getPixelRatio());
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.28;
+
+      const scene = new THREE.Scene();
+
+      const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
+      camera.position.set(CAM_START.x, CAM_START.y, CAM_START.z);
+      camera.lookAt(0, 0, 0);
+
+      const pmrem = new THREE.PMREMGenerator(renderer);
+      pmrem.compileEquirectangularShader();
+      scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.08).texture;
+      scene.environmentIntensity = 1.35;
+      pmrem.dispose();
+
+      scene.add(new THREE.AmbientLight(0xffffff, 0.12));
+
+      const keyLight = new THREE.DirectionalLight(0xffffff, 2.1);
+      keyLight.position.set(5, 7, 6);
+      scene.add(keyLight);
+
+      const specLight = new THREE.DirectionalLight(0xeef4ff, 0.85);
+      specLight.position.set(-3, 4, 5);
+      scene.add(specLight);
+
+      const fillLight = new THREE.DirectionalLight(0x667788, 0.22);
+      fillLight.position.set(-6, -3, 4);
+      scene.add(fillLight);
+
+      const rimLight = new THREE.DirectionalLight(VOLT, 4.2);
+      rimLight.position.set(-5, 0.5, -7);
+      scene.add(rimLight);
+
+      const backRim = new THREE.DirectionalLight(VOLT, 1.6);
+      backRim.position.set(4, -1, -5);
+      scene.add(backRim);
+
+      const extrudeSettings = {
+        depth: 0.3,
+        bevelEnabled: true,
+        bevelThickness: 0.038,
+        bevelSize: 0.02,
+        bevelOffset: 0,
+        bevelSegments: 1,
+        curveSegments: 1,
+      };
+
+      const boltShape = createBoltShape();
+      const { shards: shardDefs } = createShardShapes(boltShape);
+      const shardGeometries = shardDefs.map(
+        (def) => new THREE.ExtrudeGeometry(def.shape, extrudeSettings)
+      );
+      const fullGeometry = normalizeBoltGeometry(
+        new THREE.ExtrudeGeometry(boltShape, extrudeSettings),
+        BOLT_TARGET_SIZE
+      );
+      normalizeShardGeometries(shardGeometries, BOLT_TARGET_SIZE);
+
+      const boltMaterial = new THREE.MeshPhysicalMaterial({
+        color: 0x121316,
+        metalness: 0.96,
+        roughness: 0.14,
+        emissive: VOLT,
+        emissiveIntensity: 0,
+        clearcoat: 0.72,
+        clearcoatRoughness: 0.08,
+        reflectivity: 1,
+        flatShading: true,
+        envMapIntensity: 1.45,
+        transparent: true,
+        opacity: 0.92,
+      });
+
+      const boltGroup = new THREE.Group();
+      boltGroup.rotation.set(BASE_ROT.x, BASE_ROT.y, 0);
+      scene.add(boltGroup);
+
+      const shardMeshes = shardGeometries.map((geometry, index) => {
+        const mesh = new THREE.Mesh(geometry, boltMaterial);
+        mesh.userData.scatterDir = shardDefs[index].scatterDir;
+        mesh.userData.spin = (Math.random() - 0.5) * 0.55;
+        boltGroup.add(mesh);
+        return mesh;
+      });
+
+      const boltMesh = new THREE.Mesh(fullGeometry, boltMaterial);
+      boltMesh.visible = prefersReducedMotion;
+      boltGroup.add(boltMesh);
+
+      function showSolidBolt() {
+        boltMesh.visible = true;
+        shardMeshes.forEach((shard) => {
+          shard.visible = false;
+        });
+      }
+
+      const edgeGeometry = new THREE.EdgesGeometry(fullGeometry, 22);
+      const edgeMaterial = new THREE.LineBasicMaterial({
+        color: VOLT,
+        transparent: true,
+        opacity: 0,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      });
+      const edgeLines = new THREE.LineSegments(edgeGeometry, edgeMaterial);
+      boltGroup.add(edgeLines);
+
+      const glowMaterial = new THREE.MeshBasicMaterial({
+        color: VOLT,
+        transparent: true,
+        opacity: 0,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        side: THREE.BackSide,
+      });
+      const glowShell = new THREE.Mesh(fullGeometry.clone(), glowMaterial);
+      glowShell.scale.setScalar(1.035);
+      boltGroup.add(glowShell);
+
+      const composer = new EffectComposer(renderer);
+      composer.addPass(new RenderPass(scene, camera));
+      const bloomPass = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.12, 0.32, 0.82);
+      composer.addPass(bloomPass);
+
+      let width = 0;
+      let height = 0;
+      let baseResponsiveScale = 1;
+      let assemblyComplete = prefersReducedMotion;
+      let pointer = { x: 0, y: 0 };
+      let pointerClient = { x: 0, y: 0 };
+      let pointerActive = false;
+      let smoothRot = { x: BASE_ROT.x, y: BASE_ROT.y, z: 0 };
+      const raycaster = new THREE.Raycaster();
+      const pointerNDC = new THREE.Vector2();
+      const clock = new THREE.Clock();
+      const interact = {
+        dragging: false,
+        spinning: false,
+        overBolt: false,
+        dragTarget: { x: 0, y: 0, z: 0 },
+        userRot: { x: 0, y: 0, z: 0 },
+        userVel: { x: 0, y: 0, z: 0 },
+        lastPx: 0,
+        lastPy: 0,
+        lastT: 0,
+        lenisPaused: false,
+        detachDragListeners: null,
+      };
+      let glowState = {
+        emissive: prefersReducedMotion ? FINAL_EMISSIVE : 0,
+        edge: prefersReducedMotion ? FINAL_EDGE_OPACITY : 0,
+        shell: prefersReducedMotion ? FINAL_GLOW_OPACITY : 0,
+        bloom: prefersReducedMotion ? activeBloom : 0.12,
+      };
+
+      let canvasVisible = true;
+      let pageVisible = !document.hidden;
+
+      const visibilityObserver = new IntersectionObserver((entries) => {
+        canvasVisible = entries[0]?.isIntersecting ?? true;
+      }, { threshold: 0 });
+      visibilityObserver.observe(canvasWrap);
+
+      document.addEventListener("visibilitychange", () => {
+        pageVisible = !document.hidden;
+      }, { passive: true });
+
+      const scrollState = {
+        progress: 0,
+        cameraX: CAM_START.x,
+        cameraY: CAM_START.y,
+        cameraZ: CAM_START.z,
+        lookY: 0,
+        boltRotX: BASE_ROT.x,
+        boltRotY: BASE_ROT.y,
+        boltRotZ: 0,
+        boltScale: 1,
+        canvasOpacity: 1,
+        copyOpacity: 1,
+      };
+
+      function resize() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        renderer.setPixelRatio(getPixelRatio());
+        renderer.setSize(width, height, false);
+        composer.setSize(width, height);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+
+        const fit = Math.min(width, height);
+        baseResponsiveScale = fit / 620;
+        boltGroup.scale.setScalar(baseResponsiveScale * scrollState.boltScale);
+      }
+
+      function applyGlowState() {
+        boltMaterial.emissiveIntensity = glowState.emissive;
+        edgeMaterial.opacity = glowState.edge;
+        glowMaterial.opacity = glowState.shell;
+        bloomPass.strength = glowState.bloom;
+      }
+
+      function heroInteractAllowed() {
+        return finePointer
+          && !prefersReducedMotion
+          && assemblyComplete
+          && scrollState.progress < HERO_INTERACT_MAX;
+      }
+
+      function setCanvasInteractive(active) {
+        canvas.classList.toggle("is-interactive", active);
+        if (!active) {
+          canvas.classList.remove("is-grabbing", "is-over-bolt");
+        }
+      }
+
+      function pointerToNDC(clientX, clientY) {
+        pointerNDC.x = (clientX / width) * 2 - 1;
+        pointerNDC.y = -(clientY / height) * 2 + 1;
+        return pointerNDC;
+      }
+
+      function hitBolt(clientX, clientY) {
+        if (!width || !height) return false;
+        raycaster.setFromCamera(pointerToNDC(clientX, clientY), camera);
+        return raycaster.intersectObjects(boltGroup.children, true).length > 0;
+      }
+
+      function pauseLenisScroll() {
+        if (lenis && !interact.lenisPaused) {
+          lenis.stop();
+          interact.lenisPaused = true;
+        }
+      }
+
+      function resumeLenisScroll() {
+        if (lenis && interact.lenisPaused) {
+          lenis.start();
+          interact.lenisPaused = false;
+        }
+      }
+
+      function detachBoltDragListeners() {
+        if (!interact.detachDragListeners) return;
+        interact.detachDragListeners();
+        interact.detachDragListeners = null;
+      }
+
+      function releaseBoltDrag() {
+        if (!interact.dragging) return;
+        detachBoltDragListeners();
+        interact.userRot.x = interact.dragTarget.x;
+        interact.userRot.y = interact.dragTarget.y;
+        interact.userRot.z = interact.dragTarget.z;
+        interact.dragging = false;
+        canvas.classList.remove("is-grabbing");
+        document.body.classList.remove("bolt-dragging");
+        const speed = Math.hypot(interact.userVel.x, interact.userVel.y, interact.userVel.z);
+        interact.spinning = speed > SPIN_MIN;
+        resumeLenisScroll();
+      }
+
+      function resetBoltInteraction() {
+        detachBoltDragListeners();
+        interact.dragging = false;
+        interact.spinning = false;
+        interact.overBolt = false;
+        interact.userVel.x = 0;
+        interact.userVel.y = 0;
+        interact.userVel.z = 0;
+        interact.dragTarget.x = 0;
+        interact.dragTarget.y = 0;
+        interact.dragTarget.z = 0;
+        canvas.classList.remove("is-grabbing");
+        document.body.classList.remove("bolt-dragging");
+        document.body.classList.remove("bolt-grabbable");
+        resumeLenisScroll();
+      }
+
+      function applyScrollState() {
+        camera.position.set(scrollState.cameraX, scrollState.cameraY, scrollState.cameraZ);
+        camera.lookAt(0, scrollState.lookY, 0);
+        boltGroup.scale.setScalar(baseResponsiveScale * scrollState.boltScale);
+        canvasWrap.style.opacity = scrollState.canvasOpacity;
+
+        const copy = document.getElementById("hero-copy");
+        const hint = document.getElementById("hero-scroll-hint");
+        if (copy) copy.style.opacity = scrollState.copyOpacity;
+        if (hint) hint.style.opacity = scrollState.copyOpacity;
+      }
+
+      function initScrollBinding() {
+        const scrollTl = gsap.timeline({
+          scrollTrigger: {
+            trigger: "#hero-scroll",
+            start: "top top",
+            end: "+=200%",
+            pin: "#hero-sticky",
+            scrub: 0.55,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+          },
+        });
+
+        scrollTl
+          .to(scrollState, {
+            progress: 0.45,
+            cameraX: 0,
+            cameraY: 0.02,
+            cameraZ: 1.15,
+            lookY: 0,
+            boltRotX: BASE_ROT.x + 0.18,
+            boltRotY: BASE_ROT.y + 0.85,
+            boltRotZ: 0.08,
+            boltScale: 1.28,
+            copyOpacity: 0,
+            duration: 0.45,
+            ease: "none",
+          }, 0)
+          .to(scrollState, {
+            progress: 0.82,
+            cameraX: 0,
+            cameraY: -0.08,
+            cameraZ: -0.35,
+            lookY: -0.05,
+            boltRotX: BASE_ROT.x + 0.42,
+            boltRotY: BASE_ROT.y + 1.65,
+            boltRotZ: 0.14,
+            boltScale: 1.85,
+            duration: 0.37,
+            ease: "none",
+          }, 0.45)
+          .to(scrollState, {
+            progress: 1,
+            cameraZ: -1.4,
+            boltScale: 2.35,
+            boltRotY: BASE_ROT.y + 2.15,
+            canvasOpacity: 0,
+            duration: 0.18,
+            ease: "power2.in",
+          }, 0.82);
+
+        ScrollTrigger.addEventListener("refreshInit", resize);
+        ScrollTrigger.refresh();
+      }
+
+      function runAssembly() {
+        const heroCopy = document.getElementById("hero-copy");
+        if (heroCopy) {
+          gsap.set(heroCopy, { opacity: 0, y: 22 });
+        }
+
+        const timeline = gsap.timeline({
+          defaults: { ease: "power4.out" },
+          onComplete() {
+            showSolidBolt();
+            assemblyComplete = true;
+            applyGlowState();
+          },
+        });
+
+        if (heroCopy) {
+          timeline.to(heroCopy, { opacity: 1, y: 0, duration: 0.9, ease: "power3.out" }, 0.35);
+        }
+
+        shardMeshes.forEach((shard, index) => {
+          const dir = shard.userData.scatterDir;
+          const distance = 2.8 + Math.random() * 1.4;
+          const spin = shard.userData.spin;
+
+          shard.position.set(dir.x * distance, dir.y * distance, dir.z * distance * 0.6);
+          shard.rotation.set(spin * 0.4, spin, spin * 0.6);
+
+          const start = index * 0.055;
+          timeline.to(shard.position, { x: 0, y: 0, z: 0, duration: 0.95, ease: "power4.out" }, start);
+          timeline.to(shard.rotation, { x: 0, y: 0, z: 0, duration: 0.95, ease: "back.out(1.4)" }, start);
+        });
+
+        timeline.to(
+          glowState,
+          {
+            emissive: FINAL_EMISSIVE,
+            edge: FINAL_EDGE_OPACITY,
+            shell: FINAL_GLOW_OPACITY,
+            bloom: activeBloom,
+            duration: 0.55,
+            ease: "power2.out",
+            onUpdate: applyGlowState,
+          },
+          0.82
+        );
+
+        timeline.to(boltMaterial, { opacity: 1, duration: 0.35, ease: "power2.out" }, 0.78);
+      }
+
+      function runInstantBolt() {
+        shardMeshes.forEach((shard) => {
+          shard.position.set(0, 0, 0);
+          shard.rotation.set(0, 0, 0);
+        });
+        boltMaterial.opacity = 1;
+        glowState.emissive = FINAL_EMISSIVE;
+        glowState.edge = FINAL_EDGE_OPACITY;
+        glowState.shell = FINAL_GLOW_OPACITY;
+        glowState.bloom = activeBloom;
+        applyGlowState();
+        showSolidBolt();
+        assemblyComplete = true;
+
+        const heroCopy = document.getElementById("hero-copy");
+        if (heroCopy) {
+          gsap.fromTo(heroCopy, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" });
+        }
+      }
+
+      function runReducedMotionState() {
+        shardMeshes.forEach((shard) => {
+          shard.position.set(0, 0, 0);
+          shard.rotation.set(0, 0, 0);
+        });
+        boltMaterial.opacity = 1;
+        applyGlowState();
+        showSolidBolt();
+        assemblyComplete = true;
+      }
+
+      if (finePointer) {
+        window.addEventListener("mousemove", (event) => {
+          pointer.x = (event.clientX / width) * 2 - 1;
+          pointer.y = -(event.clientY / height) * 2 + 1;
+          pointerClient.x = event.clientX;
+          pointerClient.y = event.clientY;
+          pointerActive = true;
+        }, { passive: true });
+
+        window.addEventListener("mouseleave", () => {
+          pointerActive = false;
+          interact.overBolt = false;
+          canvas.classList.remove("is-over-bolt");
+          document.body.classList.remove("bolt-grabbable");
+        }, { passive: true });
+      }
+
+      if (finePointer && !prefersReducedMotion) {
+        function onBoltPointerMove(event) {
+          if (!interact.dragging) return;
+
+          event.preventDefault();
+          const now = performance.now();
+          const dx = event.clientX - interact.lastPx;
+          const dy = event.clientY - interact.lastPy;
+          const dt = Math.max(0.001, (now - interact.lastT) / 1000);
+
+          interact.dragTarget.y += dx * DRAG_SENS;
+          interact.dragTarget.x += dy * DRAG_SENS;
+          interact.dragTarget.z += dx * DRAG_Z_SENS;
+
+          const vx = (dy * DRAG_SENS) / dt;
+          const vy = (dx * DRAG_SENS) / dt;
+          const vz = (dx * DRAG_Z_SENS) / dt;
+          interact.userVel.x = interact.userVel.x * 0.35 + vx * 0.65;
+          interact.userVel.y = interact.userVel.y * 0.35 + vy * 0.65;
+          interact.userVel.z = interact.userVel.z * 0.35 + vz * 0.65;
+
+          interact.lastPx = event.clientX;
+          interact.lastPy = event.clientY;
+          interact.lastT = now;
+        }
+
+        function onBoltPointerUp() {
+          if (!interact.dragging) return;
+          detachBoltDragListeners();
+          releaseBoltDrag();
+        }
+
+        function attachBoltDragListeners() {
+          window.addEventListener("pointermove", onBoltPointerMove, { passive: false });
+          window.addEventListener("pointerup", onBoltPointerUp, { passive: true });
+          window.addEventListener("pointercancel", onBoltPointerUp, { passive: true });
+          interact.detachDragListeners = () => {
+            window.removeEventListener("pointermove", onBoltPointerMove);
+            window.removeEventListener("pointerup", onBoltPointerUp);
+            window.removeEventListener("pointercancel", onBoltPointerUp);
+          };
+        }
+
+        window.addEventListener("pointerdown", (event) => {
+          if (event.button !== 0) return;
+          if (!heroInteractAllowed()) return;
+          applyScrollState();
+          if (!hitBolt(event.clientX, event.clientY)) return;
+
+          event.preventDefault();
+          interact.dragging = true;
+          interact.spinning = false;
+          interact.userVel.x = 0;
+          interact.userVel.y = 0;
+          interact.userVel.z = 0;
+          interact.dragTarget.x = interact.userRot.x;
+          interact.dragTarget.y = interact.userRot.y;
+          interact.dragTarget.z = interact.userRot.z;
+          interact.lastPx = event.clientX;
+          interact.lastPy = event.clientY;
+          interact.lastT = performance.now();
+          canvas.classList.add("is-grabbing");
+          document.body.classList.add("bolt-dragging");
+          document.body.classList.remove("bolt-grabbable");
+          pauseLenisScroll();
+          attachBoltDragListeners();
+        }, { passive: false });
+
+        window.addEventListener("wheel", (event) => {
+          if (interact.dragging) event.preventDefault();
+        }, { passive: false });
+      }
+
+      resize();
+      window.addEventListener("resize", () => {
+        resize();
+        ScrollTrigger.refresh();
+      }, { passive: true });
+
+      if (prefersReducedMotion) {
+        runReducedMotionState();
+      } else if (useLite3D) {
+        runInstantBolt();
+        initScrollBinding();
+      } else {
+        runAssembly();
+        initScrollBinding();
+      }
+
+      renderer.setAnimationLoop(function render() {
+        if (!canvasVisible || !pageVisible) return;
+
+        const dt = Math.min(clock.getDelta(), 0.05);
+        applyScrollState();
+
+        const cursorBlend = Math.max(0, 1 - scrollState.progress * 1.35);
+        const scrollTakeover = Math.min(1, scrollState.progress / 0.12);
+        const userBlend = 1 - scrollTakeover;
+        const canInteract = heroInteractAllowed();
+
+        setCanvasInteractive(canInteract);
+
+        if (scrollState.progress > HERO_INTERACT_MAX && (interact.dragging || interact.spinning)) {
+          if (interact.dragging) {
+            detachBoltDragListeners();
+            interact.dragging = false;
+            canvas.classList.remove("is-grabbing");
+            document.body.classList.remove("bolt-dragging");
+            document.body.classList.remove("bolt-grabbable");
+            resumeLenisScroll();
+          }
+          if (interact.spinning) {
+            interact.spinning = false;
+            interact.userVel.x = 0;
+            interact.userVel.y = 0;
+            interact.userVel.z = 0;
+          }
+        }
+
+        if (canInteract && finePointer && pointerActive && !interact.dragging) {
+          interact.overBolt = hitBolt(pointerClient.x, pointerClient.y);
+          canvas.classList.toggle("is-over-bolt", interact.overBolt);
+          document.body.classList.toggle("bolt-grabbable", interact.overBolt);
+        } else if (!interact.dragging) {
+          interact.overBolt = false;
+          canvas.classList.remove("is-over-bolt");
+          document.body.classList.remove("bolt-grabbable");
+        }
+
+        if (assemblyComplete && !prefersReducedMotion) {
+          if (interact.dragging) {
+            interact.userVel.x = 0;
+            interact.userVel.y = 0;
+            interact.userVel.z = 0;
+            interact.userRot.x += (interact.dragTarget.x - interact.userRot.x) * DRAG_SMOOTH;
+            interact.userRot.y += (interact.dragTarget.y - interact.userRot.y) * DRAG_SMOOTH;
+            interact.userRot.z += (interact.dragTarget.z - interact.userRot.z) * DRAG_SMOOTH;
+          } else if (interact.spinning) {
+            interact.userRot.x += interact.userVel.x * dt;
+            interact.userRot.y += interact.userVel.y * dt;
+            interact.userRot.z += interact.userVel.z * dt;
+            interact.dragTarget.x = interact.userRot.x;
+            interact.dragTarget.y = interact.userRot.y;
+            interact.dragTarget.z = interact.userRot.z;
+
+            const friction = Math.pow(SPIN_FRICTION, dt * 60);
+            interact.userVel.x *= friction;
+            interact.userVel.y *= friction;
+            interact.userVel.z *= friction;
+
+            const speed = Math.hypot(interact.userVel.x, interact.userVel.y, interact.userVel.z);
+            if (speed < SPIN_MIN) {
+              interact.spinning = false;
+              interact.userVel.x = 0;
+              interact.userVel.y = 0;
+              interact.userVel.z = 0;
+            }
+          } else if (scrollTakeover > 0.02) {
+            const scrollEase = SCROLL_ROT_BLEND * scrollTakeover;
+            interact.userRot.x += (0 - interact.userRot.x) * scrollEase;
+            interact.userRot.y += (0 - interact.userRot.y) * scrollEase;
+            interact.userRot.z += (0 - interact.userRot.z) * scrollEase;
+            interact.dragTarget.x += (0 - interact.dragTarget.x) * scrollEase;
+            interact.dragTarget.y += (0 - interact.dragTarget.y) * scrollEase;
+            interact.dragTarget.z += (0 - interact.dragTarget.z) * scrollEase;
+          }
+        }
+
+        if (assemblyComplete) {
+          let targetX = scrollState.boltRotX + interact.userRot.x * userBlend;
+          let targetY = scrollState.boltRotY + interact.userRot.y * userBlend;
+          let targetZ = scrollState.boltRotZ + interact.userRot.z * userBlend;
+
+          if (
+            finePointer
+            && pointerActive
+            && cursorBlend > 0.02
+            && !interact.dragging
+            && !interact.spinning
+          ) {
+            targetX += pointer.y * 0.085 * cursorBlend;
+            targetY += pointer.x * 0.11 * cursorBlend;
+
+            const cursorEnergy = Math.max(0, 1 - Math.hypot(pointer.x, pointer.y) * 0.7);
+            boltMaterial.emissiveIntensity = glowState.emissive + cursorEnergy * 0.08 * cursorBlend;
+            glowMaterial.opacity = glowState.shell + cursorEnergy * 0.04 * cursorBlend;
+            bloomPass.strength = glowState.bloom + cursorEnergy * 0.06 * cursorBlend;
+          } else if (!interact.dragging) {
+            boltMaterial.emissiveIntensity = glowState.emissive;
+            glowMaterial.opacity = glowState.shell;
+            bloomPass.strength = glowState.bloom;
+          }
+
+          if (interact.dragging) {
+            smoothRot.x += (targetX - smoothRot.x) * 0.12;
+            smoothRot.y += (targetY - smoothRot.y) * 0.12;
+            smoothRot.z += (targetZ - smoothRot.z) * 0.12;
+          } else if (interact.spinning) {
+            smoothRot.x += (targetX - smoothRot.x) * 0.08;
+            smoothRot.y += (targetY - smoothRot.y) * 0.08;
+            smoothRot.z += (targetZ - smoothRot.z) * 0.08;
+          } else if (scrollTakeover > 0.02) {
+            smoothRot.x += (targetX - smoothRot.x) * 0.08;
+            smoothRot.y += (targetY - smoothRot.y) * 0.08;
+            smoothRot.z += (targetZ - smoothRot.z) * 0.08;
+          } else {
+            smoothRot.x = targetX;
+            smoothRot.y = targetY;
+            smoothRot.z = targetZ;
+          }
+
+          boltGroup.rotation.x = smoothRot.x;
+          boltGroup.rotation.y = smoothRot.y;
+          boltGroup.rotation.z = smoothRot.z;
+        }
+
+        composer.render();
+      });
+
+      window.addEventListener("pagehide", function dispose() {
+        renderer.setAnimationLoop(null);
+        visibilityObserver.disconnect();
+        ScrollTrigger.getAll().forEach((t) => t.kill());
+        if (lenis) lenis.destroy();
+        shardGeometries.forEach((geo) => geo.dispose());
+        fullGeometry.dispose();
+        edgeGeometry.dispose();
+        boltMaterial.dispose();
+        edgeMaterial.dispose();
+        glowMaterial.dispose();
+        composer.dispose();
+        renderer.dispose();
+      }, { once: true });
+    }
+
+    function normalizeBoltGeometry(geometry, targetSize) {
+      geometry.center();
+      geometry.computeBoundingBox();
+      const size = new THREE.Vector3();
+      geometry.boundingBox.getSize(size);
+      const maxDim = Math.max(size.x, size.y);
+      const scale = targetSize / maxDim;
+      geometry.scale(scale, scale, scale);
+      if (BOLT_DEPTH_SLIM !== 1) {
+        geometry.scale(1, 1, BOLT_DEPTH_SLIM);
+      }
+      geometry.computeVertexNormals();
+      return geometry;
+    }
+
+    if (!canvas) {
+      showFallback();
+    } else {
+      try {
+        initBoltScene(canvas);
+      } catch (err) {
+        console.error("WebGL init failed:", err);
+        showFallback();
+      }
+    }
+
+    initPageMotion();
+    initPolish();
+  </script>
 </body>
 </html>
